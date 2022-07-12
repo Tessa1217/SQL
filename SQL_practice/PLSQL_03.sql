@@ -1,5 +1,7 @@
 SET SERVEROUTPUT ON;
 
+-- PL/SQL SELECT 
+
 DECLARE
     v_ename employees.last_name%TYPE;
     v_message VARCHAR2(30) := 'Hello, ';
@@ -7,11 +9,12 @@ BEGIN
     SELECT last_name
     INTO v_ename
     FROM employees
-    -- SEQUENCE는 안 들어가짐
     WHERE employee_id = 114;
     DBMS_OUTPUT.PUT_LINE(v_message || v_ename);
 END;
 /
+
+-- Nested PL/SQL
 
 DECLARE 
     v_weight NUMBER(3) := 600;
@@ -41,3 +44,16 @@ BEGIN
 END;
 /
 
+-- Group function in SELECT SQL query
+DECLARE
+    v_sum_sal employees.salary%TYPE;
+    v_deptno NUMBER NOT NULL := 10;
+BEGIN
+    SELECT SUM(salary)
+    INTO v_sum_sal
+    FROM employees
+    WHERE department_id = v_deptno;
+    
+    DBMS_OUTPUT.PUT_LINE(v_sum_sal);
+END;
+/
