@@ -6,8 +6,8 @@ DECLARE
         SELECT employee_id, last_name FROM employees;
 BEGIN
     OPEN emp_cursor;
-    -- ¹Ýº¹¹® »ç¿ëÇÏ¿© ´Ù½Ã FETCH¸¦ ¸¸³ª¾ß ´ÝÈ÷Áö ¾Ê°í 
-    -- ¹Ýº¹ÀûÀ¸·Î Ä¿¼­ Æ÷ÀÎÅÍ ºÎºÐÀ» ¿òÁ÷ÀÏ ¼ö ÀÖÀ½
+    -- ë°˜ë³µë¬¸ ì‚¬ìš©í•˜ì—¬ ë‹¤ì‹œ FETCHë¥¼ ë§Œë‚˜ì•¼ ë‹«ížˆì§€ ì•Šê³  
+    -- ë°˜ë³µì ìœ¼ë¡œ ì»¤ì„œ í¬ì¸í„° ë¶€ë¶„ì„ ì›€ì§ì¼ ìˆ˜ ìžˆìŒ
     LOOP
     FETCH emp_cursor INTO v_emp_id, v_name;
         EXIT WHEN emp_cursor%NOTFOUND;
@@ -28,7 +28,7 @@ DECLARE
     );
     emp_info_record emp_info_record_type;
 BEGIN  
-    -- ¿ÀÇÂ ¿©ºÎ È®ÀÎ
+    -- ì˜¤í”ˆ ì—¬ë¶€ í™•ì¸
     IF NOT c_emp_cursor%ISOPEN THEN
         OPEN c_emp_cursor;
         DBMS_OUTPUT.PUT_LINE('===Cursor Open===');
@@ -38,10 +38,10 @@ BEGIN
         EXIT WHEN c_emp_cursor%NOTFOUND;
         DBMS_OUTPUT.PUT_LINE('ID: ' || emp_info_record.v_id);
         DBMS_OUTPUT.PUT_LINE('Last Name: ' || emp_info_record.v_name);
-        -- POINTER À§Ä¡
+        -- POINTER ìœ„ì¹˜
         DBMS_OUTPUT.PUT_LINE(c_emp_cursor%ROWCOUNT);
     END LOOP;
-    -- Ä¿¼­ ´ÝÈû
+    -- ì»¤ì„œ ë‹«íž˜
     CLOSE c_emp_cursor;
     DBMS_OUTPUT.PUT_LINE('===Cursor Close===');
 END;
@@ -57,7 +57,7 @@ DECLARE
 --        dept_name departments.department_name%TYPE
 --    );
 --    dept_info dept_info_type;
-    -- CURSOR¸¦ ÀÌ¿ëÇÑ ROWTYPE »ç¿ë
+    -- CURSORë¥¼ ì´ìš©í•œ ROWTYPE ì‚¬ìš©
     dept_info dept%ROWTYPE;
     v_count NUMBER;
 BEGIN
@@ -136,3 +136,12 @@ BEGIN
 END;
 /
 
+-- WHEN QUERY IS SHORT...
+-- Substitute query for cursor
+BEGIN
+    FOR emp_record IN (SELECT employee_id, last_name FROM employees ORDER BY 1) LOOP
+        DBMS_OUTPUT.PUT_LINE(emp_record.employee_id);
+        DBMS_OUTPUT.PUT_LINE(emp_record.last_name);
+    END LOOP;
+END;
+/
