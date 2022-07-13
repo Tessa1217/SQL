@@ -5,8 +5,8 @@ WHERE employee_id < 200;
 
 SELECT * FROM emp_test;
 
-/* »ç¿ø¹øÈ£¸¦ »ç¿ëÇÏ¿© »ç¿øÀ» »èÁ¦, »ç¿øÀÌ ¾øÀ¸¸é 
- »ç¿ëÀÚ Á¤ÀÇ ¿¹¿Ü»çÇ× »ç¿ëÇÏ¿© ÇØ´ç »ç¿øÀÌ ¾ø½À´Ï´Ù  ¶ó´Â ¿À·ù ¸Þ½ÃÁö ¹ß»ý */
+/* ì‚¬ì›ë²ˆí˜¸ë¥¼ ì‚¬ìš©í•˜ì—¬ ì‚¬ì›ì„ ì‚­ì œ, ì‚¬ì›ì´ ì—†ìœ¼ë©´ 
+ ì‚¬ìš©ìž ì •ì˜ ì˜ˆì™¸ì‚¬í•­ ì‚¬ìš©í•˜ì—¬ í•´ë‹¹ ì‚¬ì›ì´ ì—†ìŠµë‹ˆë‹¤  ë¼ëŠ” ì˜¤ë¥˜ ë©”ì‹œì§€ ë°œìƒ */
 DECLARE
     v_no_employee EXCEPTION;
 BEGIN
@@ -15,19 +15,19 @@ BEGIN
     IF SQL%NOTFOUND THEN
         RAISE v_no_employee;
     ELSE 
-        DBMS_OUTPUT.PUT_LINE('»ç¿ø »èÁ¦¿¡ ¼º°øÇß½À´Ï´Ù.');
+        DBMS_OUTPUT.PUT_LINE('ì‚¬ì› ì‚­ì œì— ì„±ê³µí–ˆìŠµë‹ˆë‹¤.');
     END IF;
 EXCEPTION
     WHEN v_no_employee THEN
-        DBMS_OUTPUT.PUT_LINE('ÇØ´ç »ç¿øÀÌ ¾ø½À´Ï´Ù');
+        DBMS_OUTPUT.PUT_LINE('í•´ë‹¹ ì‚¬ì›ì´ ì—†ìŠµë‹ˆë‹¤');
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE(SQLCODE);
 END;
 /
 
 /* 
-»ç¿ø Å×ÀÌºí¿¡¼­ »ç¿ø¹øÈ£¸¦ ÀÔ·Â ¹Þ¾Æ 10% ÀÎ»óµÈ ±Þ¿©·Î ¼öÁ¤
-´Ü 2000³â ÀÌÈÄ ÀÔ»çÇÑ »ç¿øÀº °»½ÅÇÏÁö ¾Ê°í ¸Þ¼¼Áö Ãâ·Â
+ì‚¬ì› í…Œì´ë¸”ì—ì„œ ì‚¬ì›ë²ˆí˜¸ë¥¼ ìž…ë ¥ ë°›ì•„ 10% ì¸ìƒëœ ê¸‰ì—¬ë¡œ ìˆ˜ì •
+ë‹¨ 2000ë…„ ì´í›„ ìž…ì‚¬í•œ ì‚¬ì›ì€ ê°±ì‹ í•˜ì§€ ì•Šê³  ë©”ì„¸ì§€ ì¶œë ¥
 */
 DECLARE
     v_hire_late EXCEPTION;
@@ -45,14 +45,14 @@ BEGIN
         SET salary = salary * 1.1
         WHERE employee_id = v_emp_id;
         IF SQL%FOUND THEN
-            DBMS_OUTPUT.PUT_LINE(v_emp_id ||'¹ø »ç¿øÀÇ ±Þ¿©°¡ ¼öÁ¤µÇ¾ú½À´Ï´Ù.');
+            DBMS_OUTPUT.PUT_LINE(v_emp_id ||'ë²ˆ ì‚¬ì›ì˜ ê¸‰ì—¬ê°€ ìˆ˜ì •ë˜ì—ˆìŠµë‹ˆë‹¤.');
         END IF;
     END IF;
 EXCEPTION
     WHEN v_hire_late THEN
-        DBMS_OUTPUT.PUT_LINE('2000³â ÀÌÈÄ ÀÔ»çÇÑ »ç¿øÀÔ´Ï´Ù.');
+        DBMS_OUTPUT.PUT_LINE('2000ë…„ ì´í›„ ìž…ì‚¬í•œ ì‚¬ì›ìž…ë‹ˆë‹¤.');
     WHEN no_data_found THEN
-        DBMS_OUTPUT.PUT_LINE(v_emp_id ||'´Â ¾ø´Â »ç¿ø¹øÈ£ÀÔ´Ï´Ù.');
+        DBMS_OUTPUT.PUT_LINE(v_emp_id ||'ëŠ” ì—†ëŠ” ì‚¬ì›ë²ˆí˜¸ìž…ë‹ˆë‹¤.');
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE(SQLERRM);
 END;
@@ -63,7 +63,7 @@ DECLARE
     v_emp_id employees.employee_id%TYPE :=&empId;
     v_hire_date employees.hire_date%TYPE;
 BEGIN
-    -- ÀÔ·Â¹ÞÀº »ç¿ø¹øÈ£¸¦ ÀÌ¿ëÇØ¼­ ÀÔ»çÀÏ Á¶È¸
+    -- ìž…ë ¥ë°›ì€ ì‚¬ì›ë²ˆí˜¸ë¥¼ ì´ìš©í•´ì„œ ìž…ì‚¬ì¼ ì¡°íšŒ
     SELECT hire_date
     INTO v_hire_date
     FROM employees
@@ -71,18 +71,18 @@ BEGIN
     IF v_hire_date > '2000/12/31' THEN
         RAISE v_hire_late;
     END IF;
-    -- »ç¿ø ÀÔ»çÀÏÀÌ 2000³â ÀÌÀüÀÏ °æ¿ì¿¡ »ç¿øÀÇ ¿¬ºÀ º¯°æ
+    -- ì‚¬ì› ìž…ì‚¬ì¼ì´ 2000ë…„ ì´ì „ì¼ ê²½ìš°ì— ì‚¬ì›ì˜ ì—°ë´‰ ë³€ê²½
     UPDATE employees
     SET salary = salary * 1.1
     WHERE employee_id = v_emp_id;
     IF SQL%FOUND THEN
-        DBMS_OUTPUT.PUT_LINE(v_emp_id ||'¹ø »ç¿øÀÇ ±Þ¿©°¡ ¼öÁ¤µÇ¾ú½À´Ï´Ù.');   
+        DBMS_OUTPUT.PUT_LINE(v_emp_id ||'ë²ˆ ì‚¬ì›ì˜ ê¸‰ì—¬ê°€ ìˆ˜ì •ë˜ì—ˆìŠµë‹ˆë‹¤.');   
     END IF;
 EXCEPTION
     WHEN v_hire_late THEN
-        DBMS_OUTPUT.PUT_LINE('2000³â ÀÌÈÄ ÀÔ»çÇÑ »ç¿øÀÔ´Ï´Ù.');
+        DBMS_OUTPUT.PUT_LINE('2000ë…„ ì´í›„ ìž…ì‚¬í•œ ì‚¬ì›ìž…ë‹ˆë‹¤.');
     WHEN no_data_found THEN
-        DBMS_OUTPUT.PUT_LINE(v_emp_id ||'´Â ¾ø´Â »ç¿ø¹øÈ£ÀÔ´Ï´Ù.');
+        DBMS_OUTPUT.PUT_LINE(v_emp_id ||'ëŠ” ì—†ëŠ” ì‚¬ì›ë²ˆí˜¸ìž…ë‹ˆë‹¤.');
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE(SQLERRM);
 END;
@@ -96,8 +96,11 @@ DECLARE
         WHERE department_id = &deptid
         FOR UPDATE OF salary;
     emp_hiredate EXCEPTION;
-BEGIN
-    FOR emp_record IN emp_cursor LOOP
+    emp_no_emp EXCEPTION;
+    v_count NUMBER :=0;
+BEGIN    
+    FOR emp_record IN emp_cursor 
+        LOOP
         IF emp_record.hire_date > '2000/12/31' THEN
             RAISE emp_hiredate;
         ELSE
@@ -105,13 +108,19 @@ BEGIN
             SET salary = salary * 1.1
             WHERE CURRENT OF emp_cursor;
             IF emp_cursor%FOUND THEN
-                DBMS_OUTPUT.PUT_LINE('¾÷µ¥ÀÌÆ® µÇ¾ú½À´Ï´Ù.');
+                DBMS_OUTPUT.PUT_LINE('ì—…ë°ì´íŠ¸ ë˜ì—ˆìŠµë‹ˆë‹¤.');
             END IF;
         END IF;
+        v_count := v_count + emp_cursor%ROWCOUNT;
     END LOOP; 
+    IF v_count = 0 THEN
+        RAISE emp_no_emp;
+    END IF;
 EXCEPTION
     WHEN emp_hiredate THEN
-        DBMS_OUTPUT.PUT_LINE('2000³â ÀÌÈÄ ÀÔ»çÇÑ »ç¿øÀº °»½ÅµÇÁö ¾Ê½À´Ï´Ù.');
+        DBMS_OUTPUT.PUT_LINE('2000ë…„ ì´í›„ ìž…ì‚¬í•œ ì‚¬ì›ì€ ê°±ì‹ ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.');
+    WHEN emp_no_emp THEN
+        DBMS_OUTPUT.PUT_LINE('ì‚¬ì›ì´ ì—†ìŠµë‹ˆë‹¤.');
 END;
 /
 
