@@ -91,34 +91,32 @@ END;
 -- CURSOR
 DECLARE
     CURSOR emp_cursor IS
-        SELECT *
-        FROM employees
-        WHERE department_id = &deptid
+        SELECT * FROM employees WHERE department_id = &deptid
         FOR UPDATE OF salary;
     emp_hiredate EXCEPTION;
     emp_no_emp EXCEPTION;
     v_count NUMBER :=0;
-BEGIN    
-    FOR emp_record IN emp_cursor 
-        LOOP
-        IF emp_record.hire_date > '2000/12/31' THEN
-            RAISE emp_hiredate;
-        ELSE
-            UPDATE employees
-            SET salary = salary * 1.1
+BEGIN
+    FOR emp_record IN emp_cursor LOOP
+        BEGIN
+            IF emp_record.hire_date > '2000/12/31' THEN
+                RAISE emp_hiredate;
+            END IF;
+            UPDATE employees SET salary = salary * 1.1
             WHERE CURRENT OF emp_cursor;
             IF emp_cursor%FOUND THEN
                 DBMS_OUTPUT.PUT_LINE('업데이트 되었습니다.');
             END IF;
-        END IF;
+        EXCEPTION
+             WHEN emp_hiredate THEN
+                DBMS_OUTPUT.PUT_LINE('2000년 이후 입사한 사원은 갱신되지 않습니다.');
+        END;
         v_count := v_count + emp_cursor%ROWCOUNT;
-    END LOOP; 
+    END LOOP;
     IF v_count = 0 THEN
         RAISE emp_no_emp;
     END IF;
 EXCEPTION
-    WHEN emp_hiredate THEN
-        DBMS_OUTPUT.PUT_LINE('2000년 이후 입사한 사원은 갱신되지 않습니다.');
     WHEN emp_no_emp THEN
         DBMS_OUTPUT.PUT_LINE('사원이 없습니다.');
 END;
