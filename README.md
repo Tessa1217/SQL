@@ -140,13 +140,141 @@ END LOOP;
   <li><b>%ROWCOUNT</b>: SELECT or DML statement has run, the number of rows fetched so far</li>
 </ul>
 
-### Cursor Parameter
-<code>
+### Cursor Parameter & Update
+<pre>
+DECLARE
   CURSOR cursor_name[parameter_name, datatype, ...]
   IS
   SELECT_STATEMENT
-    WHERE parameter_name
- </code>
+  WHERE (WHERE 절 조건에 들어가는 값을 parameter로 받음)
+  FOR UPDATE table_column
+    - 명시적 잠금을 사용하여 트랜잭션 기간 동안 액세스 거부 가능
+    - 갱신 또는 삭제 전에 행을 잠그기 위한 구문
+    - FOR UPDATE 절은 ORDER BY가 있는 경우에도 SELECT 문의 가장 마지막에 위치
+BEGIN
+  UPDATE...
+  WHERE CURRENT OF cursor_name
+    - 커서를 사용하여 현재 행 갱신 및 삭제
+    - 커서 질의에 FOR UPDATE 절을 포함시켜 먼저 행을 잠근 후 사용
+    - WHERE CURRENT OF 절을 사용하여 명시적 커서에서 현재 행을 참조할 수 있음
+ </pre>
 
-### Exceptions
+## Exception
 
+### Exception Processing
+<ul>
+  <li>Handler로 트랩</li>
+  <li>트랩이 없을 경우에는 호출 환경으로 전달하게 됨</li>
+</ul>
+
+### Exception Trap
+<p>블록의 EXCEPTION 색션에 있는 해당 예외 Handler로 처리가 분기</p>
+<p>PL/SQL이 예외사항을 처리하면 블록이 성공적으로 종료되며 해당하는 예외 Handler가 없으면 블록이 실패하여 예외사항 호출 환경으로 전달됨</p>
+<pre>
+EXCEPTION
+  WHEN exception1 [OR exception2 ...] THEN
+    statement1;
+    statement2;
+  WHEN exception3 THEN
+    statement1;
+    statement2;
+  WHEN OTHERS THEN
+    statement1;
+    statement2;
+</pre>
+
+### Pre-defined Exceptions
+<table>
+  <tr>
+    <th>NO_DATA_FOUND</th>
+    <td>데이터 리턴하지 않음</td>
+  </tr>
+  <tr>
+    <th>TOO_MANY_ROWS</th>
+    <td>SELECT 문이 하나 이상의 ROW 리턴</td>
+  </tr>
+  <tr>
+    <th>INVALID_CURSOR</th>
+    <td>잘못된 커서 연산 발생</td>
+  </tr>
+  <tr>
+    <th>ZERO_DIVIDE</th>
+    <td>0으로 나눔</td>
+  </tr>
+  <tr>
+    <th>DUP_VAL_ON_INDEX</th>
+    <td>중복값 삽입 시도</td>
+  </tr>
+</table>
+
+### Non-predefined Exceptions
+<ul>
+  <li>선언 부분에서 예외 사항의 이름 선언</li>
+  <ul>
+    <li><code>exception_name EXCEPTION;</code></li>
+  </ul>
+  <li>PRAGMA EXCEPTION_INIT 문을 사용하여 선언한 예외사항과 표준 오라클 서버 오류 번호를 연결</li>
+  <ul>
+    <li><code>PRAGMA EXCEPTION_INIT(exception_name, Oracle Exception Code)</code></li>
+  </ul>
+  <li>선언한 예외 사항을 해당하는 예외 처리 루틴에서 참조</li>
+  <li><b>SQLERRM</b>: ORACLE 오류 메세지 출력</li>
+  <li><b>SQLCODE</b>: ORACLE 오류 코드의 숫자 값 반환</li>
+</ul>
+
+### User-defined Exceptions
+<ul>
+  <li>선언 부분에서 사용자가 정의한 예외사항의 이름 선언</li>
+  <li>실행 부분에서 RAISE 문을 사용하여 예외사항 명시적으로 발생</li>
+  <li>선언한 예외사항을 해당하는 예외 처리 루틴에서 참조</li>
+</ul>
+
+### RAISE_APPLICIATION_ERROR
+<p>20000~20999까지의 에러 숫자가 비워져 있으므로 사용자가 정의하여 사용자 정의 오류 메시지를 실행시킬 수 있음</p>
+<code>RAISE_APPLICATION_ERROR(error_number, message[, [TRUE|FALSE]]);</code>
+<p>사용자가 정의한 오류 메시지를 내장(stored) 하위 프로그램에서 실행하는 프로시저로 내장 하위 프로그램 실행을 통해서만 호출</p>
+
+## Stored Procedure
+<pre>
+CREATE OR REPLACE PROCEDURE procedure_name
+  parameter_name MODE type
+  IS
+ BEGIN
+  statement1;
+ END;
+ => COMPILE
+</pre>
+
+### Stored Procedure Function
+<ul>
+  <li>매개변수를 사용하여 호출할 수 있는 명명된(named) PL/SQL 블록</li>
+  <li>재사용 및 유지 관리 기능 향상</li>
+  <li>코드 컴파일을 하여 소스 코드가 p code로 컴파일됨</li>
+</ul>
+
+### Stored Procedure Parameter
+<table>
+  <tr>
+    <th>IN</th>
+    <td>기본값, 값을 서브 프로그램에 전달</td>
+  </tr>
+  <tr>
+    <th>OUT</th>
+    <td>값을 호출 환경으로 반환</td>
+  </tr>
+  <tr>
+    <th>IN OUT</th>
+    <td>값을 서브 프로그램에 전달하고 호출 환경으로 반환</td>
+  </tr>
+</table>
+<pre>
+IN 매개변수
+  CREATE OR REPLACE PROCEDURE procedure_name
+    parameter_name IN type
+OUT 매개변수
+  CREATE OR REPLACE PROCEDURE procedure_name
+    parameter_name OUT type -- 비어있는 값
+IN OUT 매개변수
+  CREATE OR REPLACE PROCEDURE procedure_name
+    parameter_name IN OUT type
+</pre>
