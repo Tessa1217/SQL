@@ -13,22 +13,42 @@
 </pre>
 
 ## Types of PL/SQL Blocks
-<table>
-  <thead>
+  <table>
     <tr>
       <th>Anonymous</th>
-      <th>Procedure</th>
-      <th>Function</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
       <td>블록에 이름 지정하지 않은 익명의 프로시저, 재호출 불가</td>
-      <td>Named procedure, 재호출 가능</td>
-      <td>리턴되는 값이 있음</td>
+      <td><pre>
+      [DECLARE]
+      BEGIN 
+        --statements
+      [EXCEPTION]
+      END;
+      </pre></td>
     </tr>
-  </tbody>
-</table>
+    <tr>
+      <th>Procedure</th>
+      <td>Named procedure, 재호출 가능</td>
+      <td><pre>
+      PROCEDURE name IS
+      BEGIN 
+        -- statements
+      [EXCEPTION]
+      END;
+      </pre></td>
+    </tr>
+    <tr>
+      <th>Function</th>
+      <td>리턴되는 값이 있음</td>
+      <td><pre>
+      FUNCTION name RETURN datatype IS
+      BEGIN
+        --statements
+        RETURN value; (RETURN value is required)
+      [EXCEPTION]
+      END;
+      </pre></td>
+    </tr>
+  </table>
 
 ## Variables
 <p><b>Declaring variables</b></p>
