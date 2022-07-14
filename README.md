@@ -316,6 +316,7 @@ EXCEPTION
   <li>선언한 예외 사항을 해당하는 예외 처리 루틴에서 참조</li>
   <li><b>SQLERRM</b>: ORACLE 오류 메세지 출력</li>
   <li><b>SQLCODE</b>: ORACLE 오류 코드의 숫자 값 반환</li>
+  <li><a href="https://docs.oracle.com/cd/E11882_01/server.112/e17766/">오라클 Database Error Messages List</a></li>
 </ul>
 
 ### User-defined Exceptions
