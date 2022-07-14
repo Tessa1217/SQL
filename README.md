@@ -2,8 +2,11 @@
 ## PL/SQL Basic Block Structure  
 <pre>
   DECLARE - Declare variables, cursor, exceptions etc used within blocks
+    Declaration
   BEGIN - REQUIRED, Actual query statements being processed
+    statement1; ...
   EXCEPTION - Exceptions being processed
+    exception statement1; ...
   END; - REQUIRED
   /
 </pre>
