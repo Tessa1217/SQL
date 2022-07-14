@@ -1,19 +1,12 @@
 # SQL
 ## PL/SQL Basic Block Structure  
-<p>DECLARE<p>
-  <ul>
-    <li>Declare variables, cursor, exceptions etc used within blocks</li>
-  </ul>
-<p>BEGIN <sub>(Required)</sub><p>
-  <ul>
-    <li>Actual query statements being processed</li>
-  </ul>
-<p>EXCEPTION<p>
-  <ul>
-    <li>Exceptions being processed</li>
-  </ul>
-<p>END; <sub>(Required)</sub><p>
-<p>/</p>
+<pre>
+  DECLARE - Declare variables, cursor, exceptions etc used within blocks
+  BEGIN - REQUIRED, Actual query statements being processed
+  EXCEPTION - Exceptions being processed
+  END; - REQUIRED
+  /
+</pre>
 
 ## Types of PL/SQL Blocks
 <table>
@@ -70,7 +63,26 @@
         <ul>
           <li>필드라고 불리는 PL/SQL 테이블, 레코드, 임의의 스칼라 데이터 유형 중 하나 이상의 구성 요소 포함하는 조합 데이터 유형</li>
           <li>레코드 생성하려면 레코드 유형 정의 후 해당 유형의 레코드 선언</li>
+          <li><pre>
+          DECLARE
+            TYPE record_name_type IS RECORD
+              (FIELDS);
+             record_name record_name_type;
+          </pre></li>
           <li><b>%ROWTYPE</b> => 한 행을 단위로 하여 데이터베이스 테이블 또는 뷰의 열 모음에 따라 변수를 선언</li>
+      </ul>
+      <li><b>TABLE</b></li>
+      <ul>
+        <li>기본 키와 대응되는 값이 있음, 안에 들어가는 데이터 유형은 동일한 타입으로 구성</li>
+        <li>INDEX는 BINARY_INTEGER, PLS_INTEGER 사용</li>
+        <li>크기 제한 없이 동적으로 증가</li>
+        <li>레코드와 마찬가지로 정의와 변수 선언 파트로 나뉘며 테이블의 데이터 유형 선언 후 선언한 해당 데이터 유형의 변수를 선언</li>
+        <li><pre>
+        DECLARE
+          TYPE table_name_type IS TABLE OF column type
+          INDEX BY [BINARY_INTEGER|PLS_INTEGER];
+          table_name table_name_type;
+        </pre></li>
       </ul>
   </ul>
   <li>참조 데이터 유형</li>
@@ -82,6 +94,66 @@
     <li>한 행을 초과하여 저장되는 대형 객체의 위치 지정값 보유</li>
   </ul>
 </ol>
+
+### TABLE METHODS
+<table>
+  <tr>
+    <th>EXISTS(n)</th>
+    <td>n번째 요소가 존재하면 TRUE 반환</td>
+  </tr>
+  <tr>
+    <th>COUNT</th>
+    <td>요소 수 반환</td>
+  </tr>
+  <tr>
+    <th>FIRST, LAST</th>
+    <td>첫번째/마지막 인덱스 번호 반환</td>
+  </tr>
+  <tr>
+    <th>PRIOR(n)</th>
+    <td>인덱스 n 앞 인덱스 번호를 번환</td>
+  </tr>
+  <tr>
+    <th>NEXT(n)</th>
+    <td>인덱스 n 뒤 인덱스 번호를 반환</td>
+  </tr>
+  <tr>
+    <th>EXTEND(n, i)</th>
+    <td>테이블의 크기 증가</td>
+  </tr>
+  <tr>
+    <th>TRIM</th>
+    <td>끝에서 요소를 하나 제거</td>
+  </tr>
+  <tr>
+    <th>DELETE</th>
+    <td>특정한 인덱스 지정하지 않을 시 모든 요소를 제거</td>
+  </tr>
+</table>
+
+## LOOP
+
+### LOOP
+<pre>
+BEGIN
+  LOOP
+  EXIT WHEN condition;
+  END LOOP;
+</pre>
+
+### WHITE LOOP
+<pre>
+BEGIN
+  WHILE condition LOOP
+  END LOOP;
+</pre>
+
+### FOR LOOP
+<pre>
+BEGIN
+  FOR parameter IN start..end LOOP
+  END LOOP;
+</pre>
 
 ## Cursor
 
