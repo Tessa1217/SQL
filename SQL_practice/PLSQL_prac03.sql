@@ -88,7 +88,7 @@ EXCEPTION
 END;
 /
 
--- CURSOR
+-- CURSOR (FOR)
 DECLARE
     CURSOR emp_cursor IS
         SELECT * FROM employees WHERE department_id = &deptid
@@ -122,4 +122,40 @@ EXCEPTION
 END;
 /
 
+--CURSOR(LOOP)
+DECLARE
+    CURSOR emp_cursor IS
+    SELECT * FROM employees WHERE department_id = &deptid
+        FOR UPDATE OF salary;
+    emp_no_emp EXCEPTION;
+    emp_hiredate EXCEPTION;
+    emp_record emp_cursor%ROWTYPE;
+BEGIN
+    IF NOT emp_cursor%ISOPEN THEN
+        OPEN emp_cursor;
+    END IF;
+    LOOP
+        FETCH emp_cursor INTO emp_record;
+        EXIT WHEN emp_cursor%NOTFOUND;
+        BEGIN
+            IF emp_record.hire_date > '2000-12-31' THEN
+                RAISE emp_hiredate;
+            END IF;
+            UPDATE employees SET salary = salary * 1.1 
+            WHERE CURRENT OF emp_cursor;
+            DBMS_OUTPUT.PUT_LINE('업데이트되었습니다.');
+        EXCEPTION
+            WHEN emp_hiredate THEN
+                DBMS_OUTPUT.PUT_LINE('2000년도 이후 입사자입니다.');
+        END;
+    END LOOP;
+    IF emp_cursor%ROWCOUNT = 0 THEN
+        RAISE emp_no_emp;
+    END IF;
+    CLOSE emp_cursor;
+EXCEPTION
+    WHEN emp_no_emp THEN
+        DBMS_OUTPUT.PUT_LINE('사원이 없는 부서입니다.');
+END;
+/
 SELECT * FROM employees WHERE department_id = 100;
