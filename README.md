@@ -123,6 +123,9 @@
 </pre>
 <pre>
 FOR LOOP
+- 명시적 커서를 처리하기 위한 단축 방법으로 열기, 인출, 닫기가 암시적으로 발생
+- 커서의 자동 조작
+- 수동으로 조작이 필요한 경우에는 반드시 명시적으로 해당 과정을 제어하는 수동 제어 방식으로 사용 필요
 FOR record_name IN cursor_name LOOP
   statement1;
   statement2;
@@ -136,6 +139,14 @@ END LOOP;
   <li><b>%NOTFOUND</b>: SELECT or DML statement returned a row then FALSE, if not returned then TRUE</li>
   <li><b>%ROWCOUNT</b>: SELECT or DML statement has run, the number of rows fetched so far</li>
 </ul>
+
+### Cursor Parameter
+<code>
+  CURSOR cursor_name[parameter_name, datatype, ...]
+  IS
+  SELECT_STATEMENT
+    WHERE parameter_name
+ </code>
 
 ### Exceptions
 
