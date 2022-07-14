@@ -86,14 +86,48 @@
 ## Cursor
 
 ### Types of Cursor
-<h5>Implicit Cursor</h5>
+<h5>Implicit Cursor(암시적 커서)</h5>
 <ul>
-  <li></li>
+  <li>하나의 행만 반환하는 질의를 포함</li>
+  <li>모든 DML, PL/SQL SELECT 문에 대해 PL/SQL에서 암시적으로 선언</li>
 </ul>
-<h5>Explicit Cursor</h5>
+<h5>Explicit Cursor(명시적 커서)</h5>
 <ul>
-  <li></li>
+  <li>둘 이상의 해을 반환하는 질의에 대해 선언</li>
+  <li>직접 선언하여 이름 지정 필요(named)</li>
+  <li>블록의 실행 가능한 작업에 있는 특정 명령문 통하여 조작</li>
+  <li>다중행 SELECT 문에 의해 반환된 각 행을 개별적으로 처리할 때 사용 용이</li>
+  <li>Active Set(활성 집합) => 다중 행 질의에 의해 반환되는 행 집합</li>
+  <li>명시적 커서의 기능</li>
+  <ul>
+    <li>현재 처리되고 있는 행 추적</li>
+    <li>PL/SQL 블록에서 수동 제어 가능</li>
+  </ul>
 </ul>
+
+### Explicit Cursor
+<pre>
+수동 제어
+  DECLARE  
+    - 커서 선언, SQL 영역 생성
+    - INTO 절 필요 없음 
+  OPEN  
+    - 활성 집합 식별
+    - 반환되는 행 없어도 예외 사항 발생하지 않음
+  FETCH  
+    - 커서에서 데이터 인출
+    - 현재 행을 변수에 로드
+    - EMPTY? - 기존 행 테스트, 행이 있으면 FETCH로 돌아감
+  CLOSE  
+    - 활성 집합 해제
+</pre>
+<pre>
+FOR LOOP
+FOR record_name IN cursor_name LOOP
+  statement1;
+  statement2;
+END LOOP;
+</pre>
 
 ### Cursor Attributes
 <ul>
