@@ -431,14 +431,14 @@ END;
   <li>UPDATE 명령의 SET 절</li>
 </ul>
 <pre>
-* Procedure처럼 호출
+Procedure처럼 호출
 Example) 
   VARIABLE g_variable TYPE;
   EXECUTE :g_variable := function_name(parameter);
   PRINT g_variable;
   => Procedure처럼 호출 가능 
 
-* 내장 함수처럼 호출
+내장 함수처럼 호출
 Example) SELECT절에서 호출
   SELECT function_name(parameter) FROM dual;
   
