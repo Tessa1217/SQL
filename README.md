@@ -179,7 +179,7 @@ BEGIN
   END LOOP;
 </pre>
 
-### WHITE LOOP
+### WHILE LOOP
 <pre>
 DECLARE
   declare condition parameter
