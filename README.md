@@ -5,6 +5,7 @@
     Declaration
   BEGIN - REQUIRED, Actual query statements being processed
     statement1; ...
+    [Nested PL/SQL Block possible]
   EXCEPTION - Exceptions being processed
     exception statement1; ...
   END; - REQUIRED
