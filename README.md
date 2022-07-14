@@ -139,6 +139,8 @@
 
 ### LOOP
 <pre>
+DECLARE
+  declare condition parameter
 BEGIN
   LOOP
   EXIT WHEN condition;
@@ -147,6 +149,8 @@ BEGIN
 
 ### WHITE LOOP
 <pre>
+DECLARE
+  declare condition parameter
 BEGIN
   WHILE condition LOOP
   END LOOP;
