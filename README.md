@@ -364,7 +364,7 @@ CREATE OR REPLACE PROCEDURE procedure_name
 
 ### Stored Procedure Function
 <ul>
-  <li>매개변수를 사용하여 호출할 수 있는 명명된(named) PL/SQL 블록</li>
+  <li>Anonymous와는 달리 매개변수를 사용하여 호출할 수 있는 명명된(named) PL/SQL 블록</li>
   <li>재사용 및 유지 관리 기능 향상</li>
   <li>코드 컴파일을 하여 소스 코드가 p code로 컴파일됨</li>
 </ul>
@@ -395,3 +395,79 @@ IN OUT 매개변수
   CREATE OR REPLACE PROCEDURE procedure_name
     parameter_name IN OUT type
 </pre>
+
+## Function
+<pre>
+CREATE OR REPLACE FUNCTION function_name
+  ([parameter IN(mode) type])
+  RETURN type
+IS
+BEGIN
+  statement1
+  RETURN; (리턴 후 바로 종료되기 때문에 리턴은 반드시 실행 구문 마지막에 위치)
+END;
+</pre>
+<ul>
+  <li>Procedure와 같이 매개변수를 사용하여 호출할 수 있는 명명된 PL/SQL 블록</li>
+  <li>Procedure와는 RETURN 구문이 존재하는 것을 제외하면 구조적으로 동일</li>
+  <li>일반적으로 값을 계산할 때 사용하며 재사용 및 유지 관리 기능 향상 용이</li>
+</ul>
+
+### Function Restrictions
+<ol>
+  <li>사용자가 정의한 함수는 내장 함수이며 단일 행만 반환하는 함수</li>
+  <li>IN 매개변수만 사용 가능</li>
+  <li>데이터 유형은 SQL 데이터 유형인 CHAR, DATE, NUMBER만 가능</li>
+  <li>BOOLEAN, RECORD, TABLE 등 PL/SQL 형식의 데이터 유형은 사용 불가</li>
+  <li>DML 사용 불가</li>
+</ol>
+
+### Function Usage
+<ul>
+  <li>SELECT 명령의 SELECT 절</li>
+  <li>WHERE 및 HAVING 절 조건</li>
+  <li>CONNECT BY, START WITH, ORDER BY, GROUP BY 절</li>
+  <li>INSERT 명령의 VALUES 절</li>
+  <li>UPDATE 명령의 SET 절</li>
+</ul>
+<pre>
+* Procedure처럼 호출
+Example) 
+  VARIABLE g_variable TYPE;
+  EXECUTE :g_variable := function_name(parameter);
+  PRINT g_variable;
+  => Procedure처럼 호출 가능 
+
+* 내장 함수처럼 호출
+Example) SELECT절에서 호출
+  SELECT function_name(parameter) FROM dual;
+  
+Example) WHERE절 조건에서 호출 
+  SELECT * 
+  FROM table_name
+  WHERE column_name = function_name(parameter);
+</pre>
+
+### Difference Between Procedure and Function
+<table>
+  <thead>
+    <tr>
+      <th>프로시저(Procedure)</th>
+      <th>함수(Function)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>PL/SQL 문으로 실행</td>
+      <td>표현식의 일부로 호출</td>
+    </tr>
+     <tr>
+      <td>RETURN 데이터 유형을 포함하지 않음</td>
+      <td>RETURN 데이터 유형을 포함</td>
+    </tr>
+     <tr>
+      <td>값을 반환하지 않거나 하나 이상의 값을 반환할 수 있음</td>
+      <td>값을 하나만 반환</td>
+    </tr>
+  </tbody>
+</table>
