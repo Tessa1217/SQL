@@ -75,7 +75,7 @@
 <ol>
   <li>스칼라 데이터 유형(Scalar)</li>
     <ul>
-      <li>내부 구성 요소 없이 숫자, 문자, 날짜, 불린 등(NUMBER, BOOLEAN, CHARACTER, DATETIME) 네 가지 범주로 분류하는 **단일 값** 형태의 데이터</li>
+      <li>내부 구성 요소 없이 숫자, 문자, 날짜, 불린 등(NUMBER, BOOLEAN, CHARACTER, DATETIME) 네 가지 범주로 분류하는 <b>단일 값</b> 형태의 데이터</li>
       <li>기본 데이터 유형은 ORACLE SERVER 테이블의 열 유형과 일치</li>
       <li><b>BOOLEAN(불린) 타입 지원</b> => TRUE, FALSE, NULL</li>
       <li><b>%TYPE</b> => 데이터베이스 열 정의 또는 이전에 선언한 다른 변수 사용</li>
