@@ -53,14 +53,14 @@
 
 ### Variable Types
 <ol>
-  <li>스칼라 데이터 유형</li>
+  <li>스칼라 데이터 유형(Scalar)</li>
     <ul>
-      <li>내부 구성 요소 없이 숫자, 문자, 날짜, 불린 등 네 가지 범주로 분류하는 **단일 값** 형태의 데이터</li>
+      <li>내부 구성 요소 없이 숫자, 문자, 날짜, 불린 등(NUMBER, BOOLEAN, CHARACTER, DATETIME) 네 가지 범주로 분류하는 **단일 값** 형태의 데이터</li>
       <li>기본 데이터 유형은 ORACLE SERVER 테이블의 열 유형과 일치</li>
       <li><b>BOOLEAN(불린) 타입 지원</b> => TRUE, FALSE, NULL</li>
       <li><b>%TYPE</b> => 데이터베이스 열 정의 또는 이전에 선언한 다른 변수 사용</li>
   </ul>
-  <li>조합 데이터 유형</li>
+  <li>조합 데이터 유형(Composite)</li>
     <ul>
       <li>피드 그룹을 정의하고 조작 가능</li>
       <li><b>RECORD</b></li>
@@ -98,6 +98,18 @@
     <li>한 행을 초과하여 저장되는 대형 객체의 위치 지정값 보유</li>
   </ul>
 </ol>
+
+### SQL Function In PL/SQL Block
+<ul>
+  <li>DECODE, GROUP 함수를 제외한 SQL 함수들은 사용 가능</li>
+  <li>BEGIN 내의 SQL Statement 내에서는 모든 SQL 함수 사용 가능</li>
+</ul>
+
+### Block Control
+<ul>
+  <li>DDL, DCL 사용으로 블록 제어는 불가능</li>
+  <li>COMMIT, SAVEPOINT, ROLLBACK 등 TCL을 이용한 트랜잭션 제어는 가능</li>
+</ul>
 
 ### TABLE METHODS
 <table>
@@ -164,6 +176,10 @@ BEGIN
 </pre>
 
 ## Cursor
+<ul>
+  <li>SQL 문을 실행할 때마다 명령문의 구문을 분석하고 실행할 메모리 영역</li>
+  <li>커서의 두 가지 유형: 1) 암시적 커서 2) 명시적 커서</li>
+</ul>
 
 ### Types of Cursor
 <h5>Implicit Cursor(암시적 커서)</h5>
