@@ -82,5 +82,26 @@
     <li>한 행을 초과하여 저장되는 대형 객체의 위치 지정값 보유</li>
   </ul>
 </ol>
-      
+
+## Cursor
+
+### Types of Cursor
+<h5>Implicit Cursor</h5>
+<ul>
+  <li></li>
+</ul>
+<h5>Explicit Cursor</h5>
+<ul>
+  <li></li>
+</ul>
+
+### Cursor Attributes
+<ul>
+  <li><b>%ISOPEN</b>: Always has the value of FALSE</li>
+  <li><b>%FOUND</b>: SELECT or DML statement returned a row then TRUE, if not returned then FALSE</li>
+  <li><b>%NOTFOUND</b>: SELECT or DML statement returned a row then FALSE, if not returned then TRUE</li>
+  <li><b>%ROWCOUNT</b>: SELECT or DML statement has run, the number of rows fetched so far</li>
+</ul>
+
+### Exceptions
 
