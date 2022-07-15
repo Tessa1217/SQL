@@ -548,7 +548,12 @@ END package_name;
 </ul>
 
 <h5>패키지 생성자 호출</h5>
-<code>EXECUTE package_name.package_subprogram(parameter)</code>
+<pre>
+ 패키지 프로시저 호출
+  EXECUTE package_name.package_subprogram_name(parameter)
+ 다른 스키마에 있는 패키지 프로시저 호출
+  EXECUTE schema_name.package_name.package_subprogram_name(parameter)
+</pre>
 
 <h5>패키지 삭제</h5>
 <p>패키지 명세 삭제</p>
