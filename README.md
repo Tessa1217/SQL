@@ -523,21 +523,35 @@ Package Specification
 CREATE [OR REPLACE] PACKAGE package_name
 IS | AS
   public type and item declarations => 공용 생성자 선언
-    global variable declarations => 초기화하지 않을 시 NULL을 가짐
+    public variable declarations => 초기화하지 않을 시 NULL을 가짐
   subprogram specifications
+    public procedure1 declarations => 프로시저가 정의되어 있지 않기 때문에 실행 되지 않음, 명세 부분은 단순히 선언/등록하는 부분
 END package_name;
 
 Package Body
 CREATE [OR REPLACE] PACKAGE BODY package_name
 IS | AS
   private type and item declarations
+    global variable 
   subprogram bodies (subprogram that has been specified in package specification)
+    private procedure1 => 바디 내에서만 사용하기 때문에 정보 은닉 가능, 외부에서는 접근할 수 없음, public보다 먼저 선언 필요
+    public procedure1 definition => 명세에 선언한 subprogram 정의
+      local variable
 END package_name;
 </pre>
 
+<h5>패키지 바디(Package Body) 작성 시 유의사항</h5>
 <ul>
   <li>패키지 작성 시 서브 프로그램이 정의되는 순서 중요</li>
   <li>다른 변수 또는 서브 프로그램이 변수를 참조하기 전에 변수 선언</li>
   <li>일반적으로 먼저 패키지 몸체에서 전용(Private) 변수 및 서브프로그램을 모두 정의한 후 공용(Public) 서브 프로그램 정의 (Private => Public 순)</li>
 </ul>
 
+<h5>패키지 생성자 호출</h5>
+<code>EXECUTE package_name.package_subprogram(parameter)</code>
+
+<h5>패키지 삭제</h5>
+<p>패키지 명세 삭제</p>
+<p><code>DROP PACKAGE package_name</code></p>
+<p>패키지 바디 삭제</p>
+<p><code>DROP PACKAGE BODY package_name</code></p>
