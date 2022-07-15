@@ -1,4 +1,4 @@
-# SQL
+# PL/SQL
 ## PL/SQL Basic Block Structure  
 <pre>
   DECLARE - Declare variables, cursor, exceptions etc used within blocks
@@ -471,3 +471,73 @@ Example) WHERE절 조건에서 호출
     </tr>
   </tbody>
 </table>
+
+## Package
+<ul>
+  <li>논리적으로 관련된 PL/SQL 유형, 항목, 서브 프로그램 그룹화 => 모듈화(Modularity), 간단한 응용 프로그램 설계 가능, 오버 로드(Overload)</li>
+  <li><b>명세</b>(Specification, 선언부, 단독으로 존재 가능)와 <b>몸체</b>(Body, 정의부, 필수적으로 패키지 명세 요구)로 분리 => 정보 은닉(Hiding), 변수 및 커서의 지속성</li>
+  <li>성능 향상이 가능</li>
+  <ul>
+    <li>패키지를 처음 참조할 때 전체 패키지가 메모리에 로드(Load)</li>
+    <li>모든 사용자를 위한 복사본은 메모리에 하나만 존재</li>
+    <li>종속성 계층이 단순</li>
+  </ul>
+</ul>
+
+### Package Components
+<ol>
+  <li>공용(Public): 외부에서 호출 가능, 패키지 명세에 선언</li>
+  <li>공용(Public) 프로시저</li>
+  <li>전용(Private) 프로시저: 바디 쪽에서 선언, 외부에서는 전용 샌성자가 숨겨지며 액세스할 수 없어 정보 은닉에 용이</li>
+  <li>전역(Global) 변수: 바디 단위의 변수로 프로시저나 함수 등에서 사용 가능한 전역적인 변수</li>
+  <li>지역(Local) 변수: 프로시저나 함수 단위의 변수</li>
+</ol>
+
+### Package Construct
+<h5>생성자(Construct)의 범위</h5>
+<table>
+  <thead>
+    <tr>
+      <th>범위</th>
+      <th>설명</th>
+      <th>패키지 내 배치</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>공용(Public)</td>
+      <td>모든 Oracle Server에서 참조 가능</td>
+      <td>패키지 명세 선언, 패키지 몸체에서 정의</td>
+    </tr>
+    <tr>
+      <td>전용(Private)</td>
+      <td>동일한 패키지의 일부인 다른 생성자만 참조 가능</td>
+      <td>패키지 몸체에서 선언 및 정의</td>
+    </tr>
+  </tbody>
+</table>
+
+### Create Package 
+<pre>
+Package Specification
+CREATE [OR REPLACE] PACKAGE package_name
+IS | AS
+  public type and item declarations => 공용 생성자 선언
+    global variable declarations => 초기화하지 않을 시 NULL을 가짐
+  subprogram specifications
+END package_name;
+
+Package Body
+CREATE [OR REPLACE] PACKAGE BODY package_name
+IS | AS
+  private type and item declarations
+  subprogram bodies (subprogram that has been specified in package specification)
+END package_name;
+</pre>
+
+<ul>
+  <li>패키지 작성 시 서브 프로그램이 정의되는 순서 중요</li>
+  <li>다른 변수 또는 서브 프로그램이 변수를 참조하기 전에 변수 선언</li>
+  <li>일반적으로 먼저 패키지 몸체에서 전용(Private) 변수 및 서브프로그램을 모두 정의한 후 공용(Public) 서브 프로그램 정의 (Private => Public 순)</li>
+</ul>
+
