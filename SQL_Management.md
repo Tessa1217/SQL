@@ -172,3 +172,36 @@
   <li>값이 변화하였을 때 감사(Standard, FGA는 COMMIT, ROLLBACk 여부 등이 기록에 남지 않음)</li>
   <li>Trigger 사용 필요</li>
 </ul>
+
+## Monitoring
+<p>Tuning을 위한 목적으로 모니터링 진행</p>
+
+### System (Instance)
+<ul>
+  <li>Memory</li>
+  <li>I/O</li>
+  <li>Contention(경합)</li>
+</ul>
+<p>시스템 진단 도구: V$VIEWS</p>
+<ul>
+  <li>휘발성 데이터</li>
+  <li>DB 재시작 시 초기화</li>
+  <li>시스템 통계 데이터는 휘발성이기 때문에 정기적 수집, 보관을 통한 분석을 위해 모두 자동화되어 있음</li>
+  <ul>
+    <li>수집: mmon(background process) => 정기적인 수집 담당, 1시간에 1번씩 여러가지 성능 지표 수집 => snapshot</li>
+    <li>분석: ADDM(분석 엔진) - 2번째 스냅샷이 만들어질 때부터 1시간에 1번씩 스냅샷을 비교하면서 분석 => 결과 => 조언(advisor), 경고 생성</li>
+    <li>통합 저장: AWR(Automatic Workload Repository) => 스냅샷, 결과, 조언, 경고 등 모든 모니터링 정보를 8일간 저장 후 자동 삭제 처리, Baseline은 삭제에서 제외</li>
+    <ul>
+      <li>통계는 상대적이기 때문에 Baseline을 저장해야 이상 현상 등 비교하여 탐지할 수 있음</li>
+      <li>Baseline도 AWR에 저장됨</li>
+    </ul>
+    <li>기본적으로 자동이지만 관리자가 수동으로 수집, 분석 등 활동 가능</li>
+  </ul>
+  <li>Parameter: statistics_level = BASIC(활동 안 함)|TYPICAL(위와 같은 주기로 활동)|ALL(분석 내용 추가)</li>
+</ul>
+
+### Application (Optimizing)
+<ul>
+  <li>Schema Object</li>
+  <li>SQL</li>
+</ul>
