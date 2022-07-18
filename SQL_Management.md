@@ -1,5 +1,21 @@
 # Database Management
 
+## Command Lines
+<pre>
+- DB start
+SYS > startup nomount|mount
+- DB shutdown normal|transactional|immediate|abort
+SYS > shutdown option
+- Listener management
+lsnrctl (listener control)
+  - start
+  - stop
+  - status
+  - services
+- Oracle Enterprise Manager
+emctl start dbconsole
+</pre>
+
 ## Undo Data Management
 
 ### Automatic Undo Management
@@ -77,9 +93,9 @@
     </ul>
   <li>Specify audit options: 감사 대상  지정</li>
     <ul>
-      <li>System 권한 감사</li>
-      <li>Object 권한 감사</li>
-      <li>명령문 감사</li>
+      <li>System 권한 감사(Audited Privileges)</li>
+      <li>Object 권한 감사(Audited Objects)</li>
+      <li>명령문 감사(Audited Statements)</li>
     </ul>
   <li>Review audit information: 감사 결과 확인</li>
   <li>Maintain audit trail: 기록 백업 </li>
