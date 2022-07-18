@@ -1,19 +1,38 @@
 # Database Management
 
 ## Command Lines
+<p>Database Start/Stop</p>
 <pre>
-- DB start
-SYS > startup nomount|mount
+- DB start nomount|mount
+  SYS > STARTUP OPTION
 - DB shutdown normal|transactional|immediate|abort
-SYS > shutdown option
+  SYS > SHUTDOWN OPTION
 - Listener management
-lsnrctl (listener control)
-  - start
-  - stop
-  - status
-  - services
+  LSNRCTL (listener control)
+    - START
+    - STOP
+    - STATUS
+    - SERVICES
 - Oracle Enterprise Manager
-emctl start dbconsole
+  EMCTL START DBCONSOLE
+</pre>
+<p>Parameters</p>
+<pre>
+- Search parameters
+  SHOW PARAMETER OPTION;
+ - Update parameters
+  ALTER SYSTEM SET parameter_name=value;
+</pre>
+<p>Tablespace</p>
+<pre>
+- Tablespace 생성
+  CREATE TABLESPACE tablespace_name DATAFILE 'route/filename' SIZE size;
+- 공간 추가
+  ALTER DATABASE DATAFILE 'route/filename' RESIZE size;
+- 상태 변경
+  ALTER TABLESPACE tablespace_name STATUS
+- 삭제
+  DROP TABLESPACE tablespace_name INCLUDING CONTENTS AND DATAFILES;
 </pre>
 
 ## Undo Data Management
@@ -74,6 +93,10 @@ emctl start dbconsole
 <ul>
   <li>Mandatory auditing (DBA 감사)</li>
   <li>SYSDBA (and SYSOPER) auditing (DBA 감사)</li>
+  <ul>
+    <li>DBA 감사 parameter: AUDIT_SYS_OPERATIONS</li>
+    <li>FALSE일 경우에는 기본 감사만 진행</li>
+  </ul>
   <li>Standard database auditing(표준 데이터베이스 감사) (일반 계정 활동 감사) => DML 감사에는 부적합</li>
   <li>Fine-grained auditing(FGA) (일반 계정 활동 감사) => DML 감사에는 부적합</li>
   <li>Value-based auditing => DML 감사에 적합 (값이 남는 감사, 값의 변경 여부 감사하는데 적합)</li>
@@ -84,21 +107,68 @@ emctl start dbconsole
 
 #### Standard Database Auditing
 <p>Standard Database Auditing Setting</p>
+<ul>
+  <li>Data Dictionary: DBA_AUDIT_TRAIL</li>
+  <li>Data Dictionary: DBA_COMMON_AUDIT_TRAIL (FGA, STANDARD 둘다 조회)</li>
+</ul>
 <ol>
   <li>Enable databse auditing</li>
     <ul>
       <li>Parameter => audit_trail(감사 기록) = 감사 기록을 남기는 장소 지정</li>
       <li>audit_trail은 대표적인 정적 파라미터(설정 시 DB ON/OFF 필요)</li>
       <li>장소 옵션: none, DB, OS, xml</li>
+      <ul>
+        <li>OS 적용 시 txt 파일 형식으로 저장</li>
+        <li>xml 적용 시 xml 파일 형식으로 저장</li>
+        <li>DB 적용 시 SYS의 AUD$에 감사기록 저장 (감사 기록 미관리 시 SYSTEM TABLESPACE의 용량 부족 문제 발생)</li>
+        <li><code>TRUNCATE TABLE AUD$;</code></li>
+      </ul>
     </ul>
   <li>Specify audit options: 감사 대상  지정</li>
     <ul>
       <li>System 권한 감사(Audited Privileges)</li>
-      <li>Object 권한 감사(Audited Objects)</li>
+      <li>Object 권한 감사(Audited Objects) => 자세하지 않고 불필요한 감사 기록이 많이 남음</li>
       <li>명령문 감사(Audited Statements)</li>
     </ul>
   <li>Review audit information: 감사 결과 확인</li>
   <li>Maintain audit trail: 기록 백업 </li>
 </ol>
 
+#### Fine-grained auditing(FGA)
+<ul>
+  <li>Standard database auditing의 객체 감사의 부족한 점을 개선하기 위해 추가된 감사 기능</li>
+  <li>옵션을 자세하게 설정할 수 있어 감사 기록 양을 줄일 수 있음</li>
+  <li>Data Dictionary</li>
+  <ul>
+    <li>DBA_FGA_AUDIT_TRAIL</li>
+    <li>DBA_COMMON_AUDIT_TRAIL (FGA, STANDARD 둘다 조회)</li>
+  </ul>
+  <li>Object Audit(객체 감사)만 가능, DBMS_FGA 패키지를 기반으로 하여 FGA 실행 가능</li>
+  <ul>
+    <li>SELECT</li>
+    <li>INSERT</li>
+    <li>UPDATE</li>
+    <li>DELETE</li>
+    <li>MERGE</li>
+  </ul>
+</ul>
+<ul>
+  <li>FGA Policy</li>
+  <li>Define Audit criteria, Audit action</li>
+  <li>Handler: 해당 policy에 대한 감사 기록 별도 관리 옵션 지정 가능</li>
+  <li><code>DBMS_FGA.ADD_POLICY(OPTIONS)</code></li>
+  <li>OPTIONS</li>
+  <ul>
+    <li>object_name: TABLE</li>
+    <li>policy_name: Policy name</li>
+    <li>audit_column: 감사할 column</li>
+    <li>statement_types: 감사 실행할 명령문</li>
+    <li>audit_column_opts: DBMS_FGA.ALL_COLUMNS => SELECT 명령문 시 지정한 컬럼이 모두 조회되어야만 감사 기록 남는 설정</li>
+  </ul>
+</ul>
 
+#### Value-Based auditing
+<ul>
+  <li>값이 변화하였을 때 감사(Standard, FGA는 COMMIT, ROLLBACk 여부 등이 기록에 남지 않음)</li>
+  <li>Trigger 사용 필요</li>
+</ul>
