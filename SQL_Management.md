@@ -36,23 +36,43 @@
 </pre>
 
 ## Undo Data Management
-
+### Undo data
+<ul>
+	<li>A copy of original, premodified data(변경 전 데이터)</li>
+	<li>Used to support: rollback operations, read-consistent queries, flashback query/transaction/table, recovery from failed transactions</li>
+	<li>주로 변경사항을 롤백하거나 실행 취소하는데 사용되는 정보 생성 및 관리</li>
+</ul>
 ### Automatic Undo Management
+<p>Oracle 11G부터는 Automatic Undo Management(AUM)이 기본적으로 설정</p>
 <p>Automatic Undo Management 조건</p>
 <ul>
   <li>DB에 UNDO TABLESPACE가 최소 1개 (여러 개 생성 가능하지만 동시 사용은 하지 못함)</li>
   <li>UNDO Parameters</li>
   <ul>
     <li>undo_management = AUTO (automatic undo management)</li>
-    <li>undo_retention = COMMIT 했을 때 UNDO 테이블에 머무는 시간</li>
+		<ul>
+			<li>OPTION: AUTO | MANUAL</li>
+			<li>Auto는 자동 관리 모드, Manual은 수동 관리 모드</li>
+		</ul>
+    <li>undo_retention = COMMIT 했을 때 UNDO 테이블에 머무는 시간 관리, AUTOEXTENT 옵션 적용되었을 때만 활성화</li>
+		<ul>
+			<li>데이터베이스가 덮어쓰기 전, 이전 UNDO 데이터를 보존하려고 시도하는 최소 시간으로 기간보다 오래된 이전 UNDO 정보는 Expired 상태로 해당 공간은 새로운 트랜잭션으로 덮어쓸 수 있음</li>
+		</ul>
     <li>undo_tablespace = UNDO 테이블 설정</li>
+		<ul>
+			<li>Undo 테이블 스페이스의 이름 지정 파라미터. UNDO 테이블 스페이스가 여러 개 있고 데이터베이스 인스턴스가 특정 UNDO 테이블 스페이스를 사용하도록 지정하려는 경우 사용</li>
+		</ul>
   </ul>
 </ul>
 <pre>
+* Undo tablespace 생성
+	CREATE UNDO TABLESPACE undo_tablespace_name DATAFILE '경로/파일이름.dbf' SIZE size;
 * Undo tablespace 용량 부족할 경우 UNDO tablespace 사이즈 변경
    ALTER DATABASE DATAFILE '경로' RESIZE 변경크기;
 * Undo tablespace 스위치
    ALTER SYSTEM SET UNDO_TABLESPACE=new_tablespace_name;
+* Undo tablespace 삭제
+	DROP TABLESPACE undo_tablespace_name INCLUDING CONTENTS AND DATAFILES;
 </pre>
 
 <p>DBA의 영역</p>
@@ -68,13 +88,22 @@
 
 ## Database Concurrency
 <p>Lock: 하나의 테이블에 동시 접속 후 UPDATE할 때 B가 먼저 수정 후 A가 수정 시, B가 COMMIT, ROLLBACK 할 때까지 A는 Lock이 걸려있음</p>
+<ul>
+	<li>Prevent multiple sessions from changing the same data at the same time(동시에 여러 개의 세션이 같은 데이터 변경하는 것을 방지)</li>
+	<li>High level of data concurrency: Row-level locks for Inserts, Updates, and Deletes(로우 레벨)</li>
+	<li>Automatic queue management</li>
+	<li>Locks held until the transaction ends(COMMIT, ROLLBACK)</li>
+</ul>
 
 ### BLOCKING_SESSION
+<p>Detecting Lock Conflicts => Resolve: COMMIT/ROLLBACk, Termination of the session holding the lock(Kill Session)</p>
 <ul>
 	<li>SQL*Net message from client => 차단한 유저</li>
 	<li>enq: TX - row lock contention => 차단 당한 유저</li>
 </ul>
 <pre>
+* Blocking session 확인
+SELECT sid, serial#, username FROM V$SESSION where sid in (SELECT blocking_session FROM V$SESSION)
 * 세션 KILL => 세션은 SID와 SERIAL 번호로 구분
 ALTER SYSTEM KILL SESSION 'SID, SERIAL번호';
 </pre>
@@ -124,6 +153,20 @@ HR(2) => Waiting
   <li>Monitoring actions => Auditing</li>
 </ul>
 
+### Predefined Administrative Accounts
+<ul>
+	<li>SYS</li>
+		<ul>
+			<li>DBA role</li>
+			<li>ADMIN OPTION 권한 보유</li>
+			<li>startup, shutdown 등 유지관리 커맨드 사용 가능</li>
+			<li>Data dictionary, Automatic Workload Repository(AWR) 소유</li>
+		</ul>
+	<li>SYSTEM: DBA, MGMT_USER, AQ_ADMINISTRATOR_ROLE 롤 받음</li>
+	<li>DBSNMP: OEM_MONITOR 롤 받음</li>
+	<li>SYSMAN: MGMT_USER, RESOURCE, SELECT_CATALOG_ROLE 롤 </li>
+</ul>
+
 ### User Security Settings
 <ol>
   <li>ID/PW</li>
@@ -137,9 +180,14 @@ HR(2) => Waiting
 </ol>
 
 ### Profile
+<ul>
+	<li>Control resource consumption</li>
+	<li>Manage account status and password expiration</li>
+</ul>
 <p>Parameter</p>
 <ul>
-	<li>resource_limit => 파라미터가 true일 경우 자원 제한</li>
+	<li>resource_limit => 파라미터가 true일 경우 자원 제한, 프로파일 사용 시 TRUE로 변경 필요</li>
+	<li><code>ALTER SYSTEM SET resource_limit=TRUE;</code></li>
 	<li>resource_parameters</li>
 	<li>password_parameters</li>
 </ul>
@@ -153,7 +201,7 @@ HR(2) => Waiting
 </ul>
 <p>password_parameters</p>
 <ul>
-	<li>FAILED_LOGIN_ATTEMPTS</li>
+	<li>FAILED_LOGIN_ATTEMPTS - 로그인 실패 횟수 제한</li>
 	<li>PASSWORD_LIFE_TIME</li>
 	<li>PASSWORD_REUSE_TIME</li>
 	<li>PASSWORD_LOCK_TIME</li>
@@ -175,8 +223,13 @@ DROP PROFILE profile_name CASCADE; (적용중인 계정이 있을 경우)
 
 ### Authority
 <ul>
-  <li>System: DB를 변경할 수 있는 권한</li>
-  <li>Object: 객체를 access 할 수 있는 권한</li>
+  <li>System: Emables users to perform particular actions in the database, DB를 변경할 수 있는 권한</li>
+	<li>System 권한 부여: <code>GRANT system_privilege TO grantee clause [WITH ADMIN OPTION]</code></li>
+		<ul>
+			<li>ADMIN OPTION: 권한을 위임받은 사용자가 권한을 다른 사용자에게도 부여할 수 있는 옵션</li>
+		</ul>
+  <li>Object: Enables users to access and manipulate a specific object, 객체를 access 할 수 있는 권한</li>
+	<li>Object 권한 부여: <code>GRANT object_privilege ON object TO grantee clause [WITH GRANT OPTION]</code></li>
   <li>Role: 여러 개의 권한을 모아서 한꺼번에 부여</li>
 </ul>
 
