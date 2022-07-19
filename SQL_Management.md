@@ -343,6 +343,37 @@ END;
 
 ### Index
 <p>Index 생성과 성능 차이</p>
+<ul>
+	<li>검색 속도가 빨라짐(다만 경우에 따라 느려지는 경우도 존재, 데이터 변경 작업이 자주 일어나는 테이블의 경우에는 오히려 성능 저하 발생할 수 있음)</li>
+	<li>시스템에 걸리는 부하를 줄여서 시스템 전체 성능 향상(I/O 감소 등)</li>
+</ul>
+<table>
+	<caption><b>인덱스 사용해야 하는 경우 판단 기본 기준</b></caption>
+	<thead>
+		<tr>
+			<th>인덱스 사용해야 할 경우</th>
+			<th>인덱스를 사용하지 말아야 하는 경우</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>테이블 행 수 많을 경우</td>
+			<td>테이블 행 수 적을 경우</td>
+		</tr>
+		<tr>
+			<td>WHERE 문에 해당 컬럼 많이 사용될 경우</td>
+			<td>WHERE 문에 해당 컬럼 많이 사용되지 않을 경우</td>
+		</tr>
+		<tr>
+			<td>검색 결과가 전체 데이터의 2~4% 정도일 경우</td>
+			<td>검색 결과가 전체 데이터의 10~15% 이상 일 때</td>
+		</tr>
+		<tr>
+			<td>JOIN에 자주 사용되는 컬럼 또는 NULL을 포함하는 컬럼이 많은 경우</td>
+			<td>테이블에 DML 작업이 많은 경우</td>
+		</tr>
+	</tbody>
+</table>
 <pre>
 인덱스 사용 시 Execution Plan 예시
 * 인덱스 사용 전
@@ -364,4 +395,6 @@ CREATE INDEX index_name ON table_name(column_name);
 SELECT index_name, status FROM user_indexes [WHERE table_name = 'table_name'];
 * Unusable일 경우 (ex - 테이블을 MOVE할 경우 index 행이 변경되어 Unusable한 상태로 변경될 경우 있음)
 ALTER INDEX index_name REBUILD;
+* 인덱스 삭제
+DROP INDEX index_name;
 </pre>
