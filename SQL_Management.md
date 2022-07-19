@@ -323,6 +323,12 @@ END;
 		</ul>
 	</ul>
   <li>SQL</li>
+  <ul>
+	<li>Parameter: SQL_TRACE = True => (File)</li>
+	<li>SQLPlus의 AUTO TRACE</li>
+	<li>PlusTrace Role 생성</li>
+	<li>AUTO TRACE ON/OFF: <code>SET AUTOTRACE TRACEONLY|ON|OFF</code></li>
+  </ul>	
 </ul>
 <p>Optimizing(최적화)</p>
 <ul>
