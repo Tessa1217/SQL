@@ -60,6 +60,33 @@
   </ul>
 </ul>
 
+## Database Concurrency
+<p>Lock: 하나의 테이블에 동시 접속 후 UPDATE할 때 B가 먼저 수정 후 A가 수정 시, B가 COMMIT, ROLLBACK 할 때까지 A는 Lock이 걸려있음</p>
+
+### BLOCKING_SESSION
+<ul>
+	<li>SQL*Net message from client => 차단한 유저</li>
+	<li>enq: TX - row lock contention => 차단 당한 유저</li>
+</ul>
+<pre>
+* 세션 KILL => 세션은 SID와 SERIAL 번호로 구분
+ALTER SYSTEM KILL SESSION 'SID, SERIAL번호';
+</pre>
+<p>V$SESSION에서는 문제가 있는 SESSION 보여줌</p>
+<p>em에서 BLOCKING_SESSION 확인</p>
+<ul>
+	<li>em에서 ACTIVE SESSIONS에 WAIT 그래프 생성</li>
+	<li>BLOCKING SESSIONS 확인 후 KILL 가능</li>
+</ul>
+
+### DEAD LOCK
+<p>먼저 명령문 wait하던 곳에서 Deadlock 감지 에러가 뜨면서 wait이 끝나고 실행 중이던 명령문을 USER가 COMMIT, ROLLBACK하면 다른 유저의 Lock이 풀림</p>
+<p>tmon이 문장 중 하나의 명령문을 취소 시켜 에러 감지 명령문 띄움</p>
+<pre>
+* 테이블 모든 행에 lock 걸어두는 명령어
+LOCK TABLE table_name IN EXCLUSIVE MODE;
+</pre>
+
 ## Database Security
 <ul>
   <li>Restricting access to data and services => Authority</li>
@@ -82,20 +109,38 @@
 ### Profile
 <p>Parameter</p>
 <ul>
-  <li>resource_limit => 파라미터가 true일 경우 자원 제한</li>
+	<li>resource_limit => 파라미터가 true일 경우 자원 제한</li>
+	<li>resource_parameters</li>
+	<li>password_parameters</li>
 </ul>
-<p>Settings</p>
+<p>resource_parameters</p>
 <ul>
-  <li>Number of passwords to keep</li>
-  <li>Number of days to keep for</li>
-  <li>Number of failed login attempts to lock after</li>
-  <li>Number of days to lock for</li>
+	<li>SESSIONS_PER_USER - 동시 접속 가능한 세션 수 제한</li>
+	<li>CPU_PER_SESSION - 세션에 대한 CPU 시간 제한</li>
+	<li>CPU_PER_CALL - 호출에 대한 CPU 시간 제한(parse, execute, fetch)</li>
+	<li>CONNECT_TIME - specify the total elapsed time limit for a session, expressed in minutes</li>
+	<li>IDLE_TIME - permitted periods of continuous inactive time during a session</li>
+</ul>
+<p>password_parameters</p>
+<ul>
+	<li>FAILED_LOGIN_ATTEMPTS</li>
+	<li>PASSWORD_LIFE_TIME</li>
+	<li>PASSWORD_REUSE_TIME</li>
+	<li>PASSWORD_LOCK_TIME</li>
+	<li>PASSWORD_GRACE_TIME</li>
+	<li>PASSWORD_VERIFY_FUNCTION</li>
 </ul>
 <pre>
+* create profile
+CREATE PROFILE new_profile_name
+	LIMIT PASSWORD_REUSE_MAX 10
+	PASSORD_REUSE_TIME 30;
 * Lock 걸린 계정 해제
 SYS > ALTER USER user_name ACCOUNT UNLOCK;
 * 비밀번호 변경
 ALTER USER user_name IDENTIFIED BY password;
+* 프로파일 삭제
+DROP PROFILE profile_name CASCADE; (적용중인 계정이 있을 경우)
 </pre>
 
 ### Authority
@@ -226,6 +271,10 @@ END;
   <li>Memory</li>
   <li>I/O</li>
   <li>Contention(경합)</li>
+	<ul>
+		<li>데이터 => Lock</li>
+		<li>CPU => Latch</li>
+	</ul>
 </ul>
 <p>시스템 진단 도구: V$VIEWS</p>
 <ul>
@@ -248,5 +297,29 @@ END;
 ### Application (Optimizing)
 <ul>
   <li>Schema Object</li>
+	<ul>
+		<li>진단 데이터(통계): Table, Index(스키마에 대한 객체 통계)</li>
+		<ul>
+			<li>명령문: Analyze Table ~ (개별적인 객체 단위)</li>
+			<li><code>
+			ANALYZE TABLE EMPLOYEES COMPUTE STATISTICS;
+			</li></code>
+			<li>dbms_stats(패키지): DB 전체 또는 특정 스키마 단위, 객체 단위 등 선택적으로 단위 지정하여 일괄적으로 분석</li>
+			<li><code>
+			EXEC DBMS_STATS.GATHER_SCHEMA_STATS('schema_name');
+			</code></li>
+		</ul>
+		<li></li>
+	</ul>
   <li>SQL</li>
+</ul>
+<p>Optimizing</p>
+<ul>
+	<li>Parse</li>
+	<ol>
+		<li>Syntax, Semantic</li>
+		<li>Compile</li>
+		<li>Parse Tree</li>
+		<li>Execution Plan(Optimizing) => 실행 계획 세우기 위해 실제 테이블 상태가 아닌 최적화 통계를 확인한 후 계획 세우기 때문에 통계 자료가 부정확할 시 잘못된 실행 계획이 세워질 수 있으므로 dba의 정기적인 통계 데이터 업데이트가 필요</li>
+	</ol>
 </ul>
