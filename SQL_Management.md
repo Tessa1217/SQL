@@ -48,6 +48,12 @@
     <li>undo_tablespace = UNDO 테이블 설정</li>
   </ul>
 </ul>
+<pre>
+* Undo tablespace 용량 부족할 경우 UNDO tablespace 사이즈 변경
+   ALTER DATABASE DATAFILE '경로' RESIZE 변경크기;
+* Undo tablespace 스위치
+   ALTER SYSTEM SET UNDO_TABLESPACE=new_tablespace_name;
+</pre>
 
 <p>DBA의 영역</p>
 <ul>
@@ -693,9 +699,39 @@ DROP INDEX index_name;
 			<td>Failure of one of the critical background processes</td>
 		</tr>
 		<tr>
-			<td>Emergency shutdown procedures</td>
+			<td>Emergency shutdown procedures(Shutdown abort)</td>
 		</tr>
 	</tbody>
 </table>
 
 #### Checkpoint (CKPT)
+<ul>
+	<li>Updating data file headers with checkpoint information</li>
+	<li>Updating control files with checkpoint information</li>
+	<li>Signaling DBWn at full checkpoints</li>
+	<li>Instance failure와는 반대 순서, Control file, datafile, redo log file 모두 최송 시간이 일치하여야 함</li>
+</ul>
+
+#### Instance Recovery
+#### Background Processes
+<p>Redo log files</p>
+<ul>
+	<li>Record changes to the database</li>
+	<li>Should be multiplexed to protect against loss</li>
+</ul>
+<p>Log Writer writes</p>
+<ul>
+	<li>At comit</li>
+	<li>When one-third full</li>
+	<li>Every three seconds</li>
+	<li>Before DBWn writes</li>
+	<li>Before clean shutdowns => shutdown시 쓰지 못하면 복구 필요</li>
+</ul>
+
+#### About Instance recovery(Crash recovery)
+<ul>
+	<li>Parameter: fast_start_mttr_target</li>
+	<li>해당 파라미터 지정 시 해당 파라미터 값보다 장애 시 복구 처리 시간이 더 클 것 같은 경우 시스템에서 자동으로 checkpoint를 진행</li>
+	<li>Log Writer가 한 파일을 다 쓰고난 후에는 다른 파일로 이동하여 쓰는 Log Switch 발생, switch 발생 시에는 무조건 checkpoint 진행</li>
+	<li>Log File 두 개 다 사용할 경우 다시 처음 파일로 돌아가서 덮어쓰기 시작 (Log File 두 개를 순환하여 사용)=> Checkpoint가 필요한 이유</li>
+</ul>
