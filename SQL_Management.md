@@ -305,9 +305,13 @@ END;
 			ANALYZE TABLE EMPLOYEES COMPUTE STATISTICS;
 			</li></code>
 			<li>dbms_stats(패키지): DB 전체 또는 특정 스키마 단위, 객체 단위 등 선택적으로 단위 지정하여 일괄적으로 분석</li>
-			<li><code>
+			<li>수집: <code>
 			EXEC DBMS_STATS.GATHER_SCHEMA_STATS('schema_name');
 			</code></li>
+		<li>삭제: <code>EXEC DBMS_STATS.DELETE_SCHEMA_STATS('schema_name');</code></li>
+		<li>옛날 값으로 업데이트: <code>EXEC DBMS_STATS.RESTORE_SCHEMA_STATS('schema_name');</code></li>
+		<li>값 Lock 시키기: <code>EXEC DBMS_STATS.LOCK_SCHEMA_STATS('schema_name');</code></li>
+		<li>값 Unlock 시키기: <code>EXEC DBMS_STATS.UNLOCK_SCHEMA_STATS('schema_name');</code></li>
 			<li>dbms 패키지를 스케줄(Schedule)에 등록 시 자동화된 분석 실행 가능, 변경사항 많은 테이블부터 우선순위 부여하여 분석 실행</li>
 			<li>em => Oracle Scheduler => Automated Maintenance Tasks</li>
 			<ul>
@@ -315,6 +319,7 @@ END;
 				<li>Segment Advisor = 테이블에 문제가 있을 경우 해당 advisor에게 전송</li>
 				<li>Automatic SQL Tuning = SQL 수정 필요할 시 수정 조언</li>
 			</ul>
+			<li>dbms_stats에 대한 통계 데이터는 새롭게 갱신된 경우 기존 데이터를 AWR에 30일동안 저장되어 버전 관리 가능</li>
 		</ul>
 	</ul>
   <li>SQL</li>
