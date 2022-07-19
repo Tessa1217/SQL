@@ -80,7 +80,9 @@ ALTER SYSTEM KILL SESSION 'SID, SERIAL번호';
 </ul>
 
 ### DEAD LOCK
-<p>먼저 명령문 wait하던 곳에서 Deadlock 감지 에러가 뜨면서 wait이 끝나고 실행 중이던 명령문을 USER가 COMMIT, ROLLBACK하면 다른 유저의 Lock이 풀림</p>
+<p>복수의 Tread가 자신이 상대가 필요로 하는 리소스를 소유하면서 서로 상대가 소유한 리소스를 기다리고 있는 상황</p>
+<p>SQL Server는 deadlock 발생 시 해당 Thread 중 가장 트랜잭션이 짧게 진행된 쓰레드를 자동적으로 KILL하여 데드락 상황 해소</p>
+<p><a href="http://www.sqlprogram.com/TIPS/tip-deadlock.aspx">데드락 기본</a></p>
 <p>tmon이 문장 중 하나의 명령문을 취소 시켜 에러 감지 명령문 띄움</p>
 <pre>
 * 테이블 모든 행에 lock 걸어두는 명령어
@@ -283,7 +285,7 @@ END;
   <li>시스템 통계 데이터는 휘발성이기 때문에 정기적 수집, 보관을 통한 분석을 위해 모두 자동화되어 있음</li>
   <ul>
     <li>수집: mmon(background process) => 정기적인 수집 담당, 1시간에 1번씩 여러가지 성능 지표 수집 => snapshot</li>
-    <li>분석: ADDM(분석 엔진) - 2번째 스냅샷이 만들어질 때부터 1시간에 1번씩 스냅샷을 비교하면서 분석 => 결과 => 조언(advisor), 경고 생성</li>
+    <li>분석: ADDM(분석 엔진) - 2번째 스냅샷이 만들어질 때부터 1시간에 1번씩 스냅샷을 비교하면서 분석 => 결과 => 조언(advisor), 경고(em의 Metric and Policy Settings에서 임계치 확인 가능/ Warning, Critical 등 두 가지 thresholds level로 나눠짐) 생성</li>
     <li>통합 저장: AWR(Automatic Workload Repository) => 스냅샷, 결과, 조언, 경고 등 모든 모니터링 정보를 8일간 저장 후 자동 삭제 처리, Baseline은 삭제에서 제외</li>
     <ul>
       <li>통계는 상대적이기 때문에 Baseline을 저장해야 이상 현상 등 비교하여 탐지할 수 있음</li>
