@@ -457,3 +457,16 @@ DROP INDEX index_name;
 	<li>Automatic Segment Advisor</li>
 	<li>Automatic SQL Advisor</li>
 </ul>
+
+### Alert
+
+#### Alert Types and Clearing Alerts
+<p>Threshold(stateful) alert: Threshold가 수치화(metric based)되어 있는 경우(ex- 97% Critical, 85% Warning)</p>
+<p>Nonthreshold(stateless) alert: Threshold가 수치화되지 못하는(event based) 경우 (ex) Snapshot Too Old, Resumable Session Suspended, Recovery Area Low On Free Space)</p>
+<ul>
+	<li>Resumable Session: 하나의 트랜잭션이 공간 할당 문제로 더 이상 작업이 불가능할 경우 해당 문제가 해결될 때까지 해당 트랜잭션의 작업이 중단되지 않고 잠시 연기시키는 기능</li>
+	<li>Snapshot too old: 문장 레벨 읽기 일관성 => 문장 실행 후에는 중간에 값이 변경(Commit)되더라도 변경되기 전값(Undo 데이터)을 사용. Long Query 중 UNDO 공간 부족으로 변경 전값이 삭제되어 전값을 읽을 수 없으면 해당 오류 발생.(사후 경고)</li>
+</ul>
+
+## Performance Management
+
