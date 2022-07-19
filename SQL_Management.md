@@ -428,15 +428,15 @@ DROP INDEX index_name;
 	<li>ADDM</li>
 	<li>SQL Tuning Advisor => Bad SQL</li>
 	<li>SQL Access Advisor => Index</li>
-	<li>Memory Advisor (버전 별 메모리 관리 방법 다름)</li>
+	<li>Memory Advisor (버전 별 메모리 관리 방법 다름, Memory Advisor만 있는 경우는 11G 이상)</li>
 	<ul>
-		<li>PGA Advisor</li>
-		<li>SGA Advisor</li>
+		<li>PGA Advisor(10G)</li>
+		<li>SGA Advisor(10G)</li>
 		<ul>
-			<li>Buffer Cache Advisor</li>
-			<li>Shared Pool Advisor</li>
-			<li>Java Pool Advisor</li>
-			<li>Streams Pool Advisor</li>
+			<li>Buffer Cache Advisor(9~)</li>
+			<li>Shared Pool Advisor(9~)</li>
+			<li>Java Pool Advisor(9~)</li>
+			<li>Streams Pool Advisor(9~)</li>
 		</ul>
 	</ul>
 	<li>Space</li>
@@ -469,4 +469,65 @@ DROP INDEX index_name;
 </ul>
 
 ## Performance Management
+
+### Performance Monitoring
+<ul>
+	<li>Memory allocation issues</li>
+	<li>Resource contention</li>
+	<li>Network bottlenecks</li>
+	<li>I/O device contention</li>
+	<li>Aplication code problems</li>
+</ul>
+
+### Managing Memory 
+<ul>
+	<li>Automatic Memory Management(AMM)</li>
+	<li>Automatic Shared Memory Management(ASMM)</li>
+	<li>Manually setting shared memory management(수동 제어)</li>
+</ul>
+
+### PGA & SGA
+<p>PGA: memory region that contains data and control information for a server process</p>
+<p>9~ 이전 버전(AUTO X)</p>
+<ul>
+	<li>Session memory</li>
+	<li>Private SQL: 세션에서 최근에 사용한 SQL</li>
+	<li>Sort area: 정렬 메모리, ORDER BY절 Sorting</li>
+	<ul>
+		<li>Parameter: SORT_AREA_SIZE = 64K</li>
+		<li>테이블이 클 경우에는 Sort 메모리(64K)가 작아서 Sorting 불가능할 경우 TEMP 테이블 스페이스 사용하여 테이블 작게 소분해서 SORT MERGE 하여 정렬</li>
+	</ul>
+</ul>
+<p>SGA</p>
+<p>9~ 이전 버전</p>
+<ul>
+	<li>Parameter: SGA_TARGET(SGA 총량)</li>
+	<li>총량에서 각각의 메모리 풀을 subarea로 잡아서 할당</li>
+	<li>SGA 변경 시 DB shutdown/startup이 필요 => 운영 중에는 메모리 변경을 할 수 없음</li>
+</ul>
+<table>
+	<thead>
+		<tr>
+			<th></th>
+			<th>9~</th>
+			<th>10G</th>
+			<th>11G</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>SGA</td>
+			<td>Dynamic: DB shutdown/startup 없이 메모리 사이즈 변경 가능, 다만 메모리 사이즈 줄일 경우 바로 해당 메모리 사용할 수 있는 것이 아니라 LRU 알고리즘에 맞게 데이터를 비워줘야하기 때문에 dynamic하게 바로바로 적용되지는 않는 단점 존재</td>
+			<td><b>ASMM</b>(sga) => Auto: Shared Pool, Buffer Cache, Large Pool, Java Pool들이 공통으로 전체 메모리에서 고정 메모리를 제한 나머지 메모리를 사용하고 고정 memory를 지정하여 나머지 풀들이 해당 메모리를 사용함. 메모리를 훨씬 탄력적으로 사용 가능. mman(memory manager)이 메모리를 관리</td>
+			<td rowspan="2"><b>AMM</b>(sga + pga) => SGA와 PGA의 전체 총량을 지정하여 SGA와 PGA 사이의 경계가 없어짐<br>
+			Parameter = MEMORY_TARGET (sga, pga target은 0으로 설정)</td>
+		</tr>
+		<tr>
+			<td>PGA</td>
+			<td>Auto: SORT_AREA_SIZE와 같이 각 Server Process의 PGA마다 할당했던 공간 대신 통합 사이즈(전체 총량)로 할당하고 접속한 Server Process의 PGA의 Private한 공간을 제외한 나머지 남는 공간을 SQL Work Area로 사용. SQL Work Area는 Sort, Hash, Bitmap 작업 등 처리하는 메모리 공간.</td>
+			<td>Auto: 9~ 버전 메모리 관리 방식 유지</td>
+		</tr>
+	</tbody>
+</table>
+
 
