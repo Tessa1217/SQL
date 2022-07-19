@@ -340,3 +340,28 @@ END;
 		<li>Execution Plan(Optimizing) => 실행 계획 세우기 위해 실제 테이블 상태가 아닌 최적화 통계를 확인한 후 계획 세우기 때문에 통계 자료가 부정확할 시 잘못된 실행 계획이 세워질 수 있으므로 dba의 정기적인 통계 데이터 업데이트가 필요</li>
 	</ol>
 </ul>
+
+### Index
+<p>Index 생성과 성능 차이</p>
+<pre>
+인덱스 사용 시 Execution Plan 예시
+* 인덱스 사용 전
+Operation: 
+	0 SELECT STATEMENT
+	1 TABLE ACCESS FULL
+* 인덱스 사용 후
+Operation:
+	0 SELECT STATEMENT
+	1 TABLE ACCESS BY INDEX ROWID
+	2 INDEX RANGE SCANE
+=> 대용량 데이터가 저장된 테이블의 경우 인덱스 생성 시 consistent gets, physical reads 등 I/O 지표와 time이 줄어든 것을 볼 수 있음
+</pre>
+
+<pre>
+* 인덱스 생성
+CREATE INDEX index_name ON table_name(column_name);
+* 인덱스 상태 확인
+SELECT index_name, status FROM user_indexes [WHERE table_name = 'table_name'];
+* Unusable일 경우 (ex - 테이블을 MOVE할 경우 index 행이 변경되어 Unusable한 상태로 변경될 경우 있음)
+ALTER INDEX index_name REBUILD;
+</pre>
