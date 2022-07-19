@@ -88,6 +88,28 @@ ALTER SYSTEM KILL SESSION 'SID, SERIAL번호';
 * 테이블 모든 행에 lock 걸어두는 명령어
 LOCK TABLE table_name IN EXCLUSIVE MODE;
 </pre>
+<p>먼저 명령문 wait하던 곳에서 DeadLock감지 에러(ORA-00060)가 뜨면서 wait이 끝나고
+실행 중이던 명령문을 user가 commit, rollback해주면 다른 유저의 lock이 풀림</p>
+<pre>
+* Deadlock 예시
+HR(1) > UPDATE employees
+SET salary = salary * 1.1 
+WHERE employee_id = 100;
+HR(2) > UPDATE employees
+SET salary = salary * 1.1
+WHERE employee_id = 101;
+HR(1) > UPDATE employees
+SET salary = salary * 1.1
+WHERE employee_id = 101;
+HR(2) > UPDATE employees
+SET salary = salary * 1.1
+WHERE employee_id = 100;
+
+HR(1) => ORA-00060: Deadlock detected...;
+HR(2) => Waiting
+
+=> Deadlock 발생한 트랜잭션에 COMMIT, ROLLBACK 등으로 처리하면 Lock 상태로 변경
+</pre>
 
 ## Database Security
 <ul>
@@ -289,11 +311,11 @@ END;
     <li>통합 저장: AWR(Automatic Workload Repository) => 스냅샷, 결과, 조언, 경고 등 모든 모니터링 정보를 8일간 저장 후 자동 삭제 처리, Baseline은 삭제에서 제외</li>
     <ul>
       <li>통계는 상대적이기 때문에 Baseline을 저장해야 이상 현상 등 비교하여 탐지할 수 있음</li>
-      <li>Baseline도 AWR에 저장됨</li>
+	<li>Baseline도 AWR에 저장됨</li>
     </ul>
     <li>기본적으로 자동이지만 관리자가 수동으로 수집, 분석 등 활동 가능</li>
   </ul>
-  <li>Parameter: statistics_level = BASIC(활동 안 함)|TYPICAL(위와 같은 주기로 활동)|ALL(분석 내용 추가)</li>
+  <li>Parameter: statistics_level = BASIC(활동 안 함)|TYPICAL(위와 같은 주기로 활동)|ALL(분석 내용 추가, 수집하는 정보가 늘어나 OVERHEAD 발생할 수 있음)</li>
 </ul>
 
 ### Application (Optimizing)
@@ -400,3 +422,38 @@ ALTER INDEX index_name REBUILD;
 * 인덱스 삭제
 DROP INDEX index_name;
 </pre>
+
+### Advisor
+<ul>
+	<li>ADDM</li>
+	<li>SQL Tuning Advisor => Bad SQL</li>
+	<li>SQL Access Advisor => Index</li>
+	<li>Memory Advisor (버전 별 메모리 관리 방법 다름)</li>
+	<ul>
+		<li>PGA Advisor</li>
+		<li>SGA Advisor</li>
+		<ul>
+			<li>Buffer Cache Advisor</li>
+			<li>Shared Pool Advisor</li>
+			<li>Java Pool Advisor</li>
+			<li>Streams Pool Advisor</li>
+		</ul>
+	</ul>
+	<li>Space</li>
+	<ul>
+		<li>Segment Advisor => Table</li>
+		<li>Undo Advisotr => Undo</li>
+	</ul>
+	<li>Backup</li>
+	<ul>
+		<li>MTTR Advisor</li>
+	</ul>
+</ul>
+
+### Automated Maintenance Tasks
+<p>Default Autotask maintenance jobs (일정 취소/조정 가능)</p>
+<ul>
+	<li>Gathering optimizer statistics</li>
+	<li>Automatic Segment Advisor</li>
+	<li>Automatic SQL Advisor</li>
+</ul>
