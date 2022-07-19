@@ -308,12 +308,18 @@ END;
 			<li><code>
 			EXEC DBMS_STATS.GATHER_SCHEMA_STATS('schema_name');
 			</code></li>
+			<li>dbms 패키지를 스케줄(Schedule)에 등록 시 자동화된 분석 실행 가능, 변경사항 많은 테이블부터 우선순위 부여하여 분석 실행</li>
+			<li>em => Oracle Scheduler => Automated Maintenance Tasks</li>
+			<ul>
+				<li>Optimizer Statistics Gathering</li>
+				<li>Segment Advisor = 테이블에 문제가 있을 경우 해당 advisor에게 전송</li>
+				<li>Automatic SQL Tuning = SQL 수정 필요할 시 수정 조언</li>
+			</ul>
 		</ul>
-		<li></li>
 	</ul>
   <li>SQL</li>
 </ul>
-<p>Optimizing</p>
+<p>Optimizing(최적화)</p>
 <ul>
 	<li>Parse</li>
 	<ol>
