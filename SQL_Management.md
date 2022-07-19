@@ -732,6 +732,9 @@ DROP INDEX index_name;
 <ul>
 	<li>Parameter: fast_start_mttr_target</li>
 	<li>해당 파라미터 지정 시 해당 파라미터 값보다 장애 시 복구 처리 시간이 더 클 것 같은 경우 시스템에서 자동으로 checkpoint를 진행</li>
+	<li>Checkpoint 과다하게 발생 시 I/O 문제 발생</li>
 	<li>Log Writer가 한 파일을 다 쓰고난 후에는 다른 파일로 이동하여 쓰는 Log Switch 발생, switch 발생 시에는 무조건 checkpoint 진행</li>
-	<li>Log File 두 개 다 사용할 경우 다시 처음 파일로 돌아가서 덮어쓰기 시작 (Log File 두 개를 순환하여 사용)=> Checkpoint가 필요한 이유</li>
+	<li>Log File 다 사용할 경우 다시 처음 파일로 돌아가서 덮어쓰기 시작 (Log File은 서로서로 순환하여 사용)=> Checkpoint가 필요한 이유</li>
+	<li>Log File 순환 사용에 대한 문제점: 로그가 쌓이는 속도가 Switch 속도보다 빠른 경우 Checkpoint 지연 발생하며 문제 발생(Logswtich wait event 발생, 해당 event 발생 시 DML이 금지됨)</li>
+	<li>해결 방안: 로그 파일의 개수를 늘려줌(로그 파일은 데이터파일과 달리 리사이즈 불가)</li>
 </ul>
