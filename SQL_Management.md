@@ -79,6 +79,25 @@
   <li>Profile</li>
 </ol>
 
+### Profile
+<p>Parameter</p>
+<ul>
+  <li>resource_limit => 파라미터가 true일 경우 자원 제한</li>
+</ul>
+<p>Settings</p>
+<ul>
+  <li>Number of passwords to keep</li>
+  <li>Number of days to keep for</li>
+  <li>Number of failed login attempts to lock after</li>
+  <li>Number of days to lock for</li>
+</ul>
+<pre>
+* Lock 걸린 계정 해제
+SYS > ALTER USER user_name ACCOUNT UNLOCK;
+* 비밀번호 변경
+ALTER USER user_name IDENTIFIED BY password;
+</pre>
+
 ### Authority
 <ul>
   <li>System: DB를 변경할 수 있는 권한</li>
@@ -171,7 +190,33 @@
 <ul>
   <li>값이 변화하였을 때 감사(Standard, FGA는 COMMIT, ROLLBACk 여부 등이 기록에 남지 않음)</li>
   <li>Trigger 사용 필요</li>
+  <li>COMMIT하여 값이 변동된 이후 전에 값과 변경된 값 확인 가능</li>
 </ul>
+<pre>
+* Value-Based auditing TRIGGER 예시 *
+
+conn system/oracle
+CREATE TABLE system.audit_employees
+(os_user VARCHAR2(10),
+dml_date DATE,
+description VARCHAR2(1000))
+/
+
+CREATE OR REPLACE TRIGGER
+	system.hrsalary_audit
+	AFTER UPDATE OF salary
+	ON hr.employees
+	REFERENCING NEW AS NEW OLD AS OLD
+	FOR EACH ROW
+BEGIN
+	IF :old.salary != :new.salary THEN
+	INSERT INTO system.audit_employees
+	VALUES(sys_context('userenv', 'os_user'), sysdate, 
+	:new.employee_id || ' salary changed from '||:old.salary|| ' to '||:new.salary);
+	END IF;
+END;
+/
+</pre>
 
 ## Monitoring
 <p>Tuning을 위한 목적으로 모니터링 진행</p>
