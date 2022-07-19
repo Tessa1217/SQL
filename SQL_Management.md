@@ -717,7 +717,7 @@ DROP INDEX index_name;
 <p>Redo log files</p>
 <ul>
 	<li>Record changes to the database</li>
-	<li>Should be multiplexed to protect against loss</li>
+	<li>Should be multiplexed to protect against loss(Redo log file의 다중화)</li>
 </ul>
 <p>Log Writer writes</p>
 <ul>
@@ -737,4 +737,40 @@ DROP INDEX index_name;
 	<li>Log File 다 사용할 경우 다시 처음 파일로 돌아가서 덮어쓰기 시작 (Log File은 서로서로 순환하여 사용)=> Checkpoint가 필요한 이유</li>
 	<li>Log File 순환 사용에 대한 문제점: 로그가 쌓이는 속도가 Switch 속도보다 빠른 경우 Checkpoint 지연 발생하며 문제 발생(Logswtich wait event 발생, 해당 event 발생 시 DML이 금지됨)</li>
 	<li>해결 방안: 로그 파일의 개수를 늘려줌(로그 파일은 데이터파일과 달리 리사이즈 불가)</li>
+	<li>마지막 log 내용 포함한 Redo Log File 장애 시 예방 방안: Redundancy, 각각의 redo log file의 복사본 생성(다중화, multiplexing)</li>
+	<ul>
+		<li>동시간대 파일 내용을 가지는 그룹 => LOG GROUP</li>
+		<ul>
+			<li>관련 딕셔너리: V$LOG</li>
+			<li><pre>SELECT group#, members, sequence#, status, 
+			TO_CHAR(first_time, 'rr/mm/dd hh24:mi:ss') AS first_time FROM V$LOG</pre></li>
+			<li>STATUS: ACTIVE(체크포인트 중인 상태)|INACTIVE(체크포인트 끝나서 재사용 가능한 상태)|CURRENT</li>
+			<li>수동으로 LOGSWITCH: <code>ALTER SYSTEM SWITCH LOFGILE;</code></li>
+			<li>그룹 추가: <code>ALTER DATABASE ADD LOGFILE GROUP # ('경로/로그파일', '경로/로그파일2') SIZE size;</code></li>
+		</ul>
+		<li>GROUP에 속하는 개별 파일 => LOG MEMBER</li>
+		<ul>
+			<li>멤버 추가: ALTER DATABASE ADD LOGFILE MEMBER '경로/redo_file_name' TO GROUP #;</li>
+		</ul>
+		<li>권장하는 GROUP과 MEMBER수 => 3개의 GROUP(재사용), 2개의 MEMBER(안정성 권장)</li>
+	</ul>
 </ul>
+
+#### File Multiplexing & File Backup
+<p>안전하게 DB 운영하기 위한 방법: CONTROL, REDO LOG FILE은 다중화, DATAFILE은 정기적인 BACKUP 진행 필요</p>
+<p>Control File Multiplexing</p>
+<ul>
+	<li>Data Dictionary: V$CONTROLFILE</li>
+	<li><pre>SELECT name FROM V$CONTROLFILE;</pre></li>
+	<li>컨트롤 파일은 재구성 시 DB 재시작 해야함</li>
+	<li>다중화 절차</li>
+	<ol>
+		<li>CONTROL_FILES(파라미터) 수정(정적 파라미터, SCOPE=SPFILE 옵션 필요)</li>
+		<li>SHUTDOWN IMMEDIATE</li>
+		<li>기존 CONTROL FILE을 복사해서 새 CONTROL FILE 생성</li>
+		<li>STARTUP</li>
+	</ol>
+</ul>
+
+
+
