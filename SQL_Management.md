@@ -747,6 +747,15 @@ DROP INDEX index_name;
 			<li>STATUS: ACTIVE(체크포인트 중인 상태)|INACTIVE(체크포인트 끝나서 재사용 가능한 상태)|CURRENT</li>
 			<li>수동으로 LOGSWITCH: <code>ALTER SYSTEM SWITCH LOFGILE;</code></li>
 			<li>그룹 추가: <code>ALTER DATABASE ADD LOGFILE GROUP # ('경로/로그파일', '경로/로그파일2') SIZE size;</code></li>
+			<li>Mode</li>
+			<ul>
+				<li>재사용하여 항상 최근의 로그만 기록하는 로그 파일 운영 방식: No archive log mode</li>
+				<li>로그를 보관하는 운영 방식: Archive log mode</li>
+				<ul>
+					<li>지우면서 계속 사용하는 로그 파일: Online redo log</li>
+					<li>보관해놓은 로그 파일: Archived log</li>
+				</ul>
+			</ul>
 		</ul>
 		<li>GROUP에 속하는 개별 파일 => LOG MEMBER</li>
 		<ul>
