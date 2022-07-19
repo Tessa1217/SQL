@@ -423,6 +423,12 @@ ALTER INDEX index_name REBUILD;
 DROP INDEX index_name;
 </pre>
 
+<p>Invalid and Unusable Objects</p>
+<ul>
+	<li>PL/SQL code objects must be recompiled (테이블 이름 변경 등으로 블록 내용 변경된 경우 변경 후 recompile 필요)</li>
+	<li>Indexes must be rebuilt</li>
+</ul>
+
 ### Advisor
 <ul>
 	<li>ADDM</li>
@@ -481,9 +487,9 @@ DROP INDEX index_name;
 
 ### Managing Memory 
 <ul>
-	<li>Automatic Memory Management(AMM)</li>
-	<li>Automatic Shared Memory Management(ASMM)</li>
-	<li>Manually setting shared memory management(수동 제어)</li>
+	<li>Automatic Memory Management(AMM) - 11G</li>
+	<li>Automatic Shared Memory Management(ASMM) - 10G</li>
+	<li>Manually setting shared memory management(수동 제어) - 9~</li>
 </ul>
 
 ### PGA & SGA
@@ -506,6 +512,7 @@ DROP INDEX index_name;
 	<li>SGA 변경 시 DB shutdown/startup이 필요 => 운영 중에는 메모리 변경을 할 수 없음</li>
 </ul>
 <table>
+	<caption><b>버전별 SGA&PGA 메모리 관리 방식</b></caption>
 	<thead>
 		<tr>
 			<th></th>
@@ -530,4 +537,165 @@ DROP INDEX index_name;
 	</tbody>
 </table>
 
+### Dynamic Performance Statistics
+<p>Data Dictionary</p>
+<p>Dictionary: SYS는 전체, SESSION은 특정 세션, SERVICE는 특정 서비스별</p>
+<ul>
+	<li>V$SYSSTAT</li>
+	<li>V$SESSSTAT</li>
+	<li>V$SERVICE_STATS 등</li>
+</ul>
 
+## Backup and Recovery
+
+### Database Management Objectives(Recovery)
+<p>Increase Mean Time Between Failures(<b>MTBF</b>)</p>
+<p>Decrease Mean Time To Recover(<b>MTTR</b>)</p>
+<p>Minimize the loss of data</p>
+<p>Protect critical components by redundancy(중요한 요소들 중복적으로 만듦)</p>
+
+### Failure
+<ul>
+	<li>Statement Failure: Semantic error(논리 오류), 공간 부족, 권한 등에 관한 오류</li>
+	<li>User Process Failure: User Process가 비정상적으로 종료되는 등 User Process에 관한 오류</li>
+	<li>Network Failure</li>
+	<li>User Error</li>
+	<li>Instance Failure</li>
+	<li>Media Failure</li>
+</ul>
+
+### Statement Failure
+<table>
+	<thead>
+		<tr>
+			<th>Typical Problems</th>
+			<th>Possible Solutions</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Attempts to enter invalid data into a table(삽입 시 발생하는 문제)</td>
+			<td>Work with users to validate and correct data</td>
+		</tr>
+		<tr>
+			<td>Attempts to perform operations with insufficient privileges(권한 관련)</td>
+			<td>Provide appropriate object or system privileges</td>
+		</tr>
+		<tr>
+			<td>Attempts to allocate space that fail(공간 관련)</td>
+			<td>
+				<ul>
+					<li>Enable resumable space allocation</li>
+					<li>Increase owner quota</li>
+					<li>Add space to tablespace</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>Logic errors in applications</td>
+			<td>Work with developers to correct program errors</td>
+		</tr>
+	</tbody>
+</table>
+
+### User Process Failure
+<table>
+	<thead>
+		<tr>
+			<th>Typical Problems</th>
+			<th>Possible Solutions</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>A user performs an abnormal disconnect</td>
+			<td rowspan="3">DBA가 할 수 있는 역할은 별로 없음, 주로 백그라운드 프로세스 역할<br>
+			pmon(process monitor process)이 정리</td>
+		</tr>
+		<tr>
+			<td>A user's session is abnormally terminated</td>
+		</tr>
+		<tr>
+			<td>A user experiences a pgoram error that terminates the session</td>
+		</tr>
+	</tbody>
+</table>
+
+### Network Failure
+<table>
+	<thead>
+		<tr>
+			<th>Typical Problems</th>
+			<th>Possible Solutions</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Listener fails</td>
+			<td>Configure a backup listener and connect-time failover</td>
+		</tr>
+		<tr>
+			<td>Network Interface Card(NIC) fails</td>
+			<td>Configure multiple network cards</td>
+		</tr>
+		<tr>
+			<td>Network connection fails</td>
+			<td>Configure a backup network connection</td>
+		</tr>
+	</tbody>
+</table>
+
+### User Error
+<table>
+	<thead>
+		<tr>
+			<th>Typical Problems</th>
+			<th>Possible Solutions</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>User inadvertently deletes or modifies data</td>
+			<td>Roll back transaction and dependent transactions or rewind table</td>
+		</tr>
+		<tr>
+			<td>User drops a table</td>
+			<td>Recover table from recycle bin(flashback)</td>
+		</tr>
+	</tbody>
+</table>
+
+#### Flashback
+<ul>
+	<li>Viewing past states of data</li>
+	<li>Winding data back and forth in time</li>
+	<li>Assisting users in error analysis and recovery</li>
+</ul>
+
+### Instance Failure
+<table>
+	<thead>
+		<tr>
+			<th>Typical Problems</th>
+			<th>Possible Solutions</th>
+		</tr>	
+	</thead>
+	<tbody>
+		<tr>
+			<td>Power outage</td>
+			<td rowspan="4">DB Instance가 비정상적으로 종료되어 control file, datafile과 redo log file의 최종 시간이 맞지 않은, database가 dirty한 상태로 종료된 경우 복구 진행<br>smon(System monitor process) => Restart the instance by using STARTUP, recovering from instance failure(automatic, use redo log file)<br>
+			Investigate the causes of failure by using the alert log, trace files, and em</td>
+		</tr>
+		<tr>
+			<td>Hardware failure</td>
+		</tr>
+		<tr>
+			<td>Failure of one of the critical background processes</td>
+		</tr>
+		<tr>
+			<td>Emergency shutdown procedures</td>
+		</tr>
+	</tbody>
+</table>
+
+#### Checkpoint (CKPT)
