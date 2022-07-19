@@ -520,7 +520,7 @@ DROP INDEX index_name;
 			<td>Dynamic: DB shutdown/startup 없이 메모리 사이즈 변경 가능, 다만 메모리 사이즈 줄일 경우 바로 해당 메모리 사용할 수 있는 것이 아니라 LRU 알고리즘에 맞게 데이터를 비워줘야하기 때문에 dynamic하게 바로바로 적용되지는 않는 단점 존재</td>
 			<td><b>ASMM</b>(sga) => Auto: Shared Pool, Buffer Cache, Large Pool, Java Pool들이 공통으로 전체 메모리에서 고정 메모리를 제한 나머지 메모리를 사용하고 고정 memory를 지정하여 나머지 풀들이 해당 메모리를 사용함. 메모리를 훨씬 탄력적으로 사용 가능. mman(memory manager)이 메모리를 관리</td>
 			<td rowspan="2"><b>AMM</b>(sga + pga) => SGA와 PGA의 전체 총량을 지정하여 SGA와 PGA 사이의 경계가 없어짐<br>
-			Parameter = MEMORY_TARGET (sga, pga target은 0으로 설정)</td>
+			Parameter = MEMORY_TARGET (sga, pga target은 0으로 설정), MEMORY_TARGET 0으로 지정할 경우에는 SGA, PGA 각각의 메모리 총량으로 관리하는 ASMM 방식(10G) 방식으로 관리 가능</td>
 		</tr>
 		<tr>
 			<td>PGA</td>
