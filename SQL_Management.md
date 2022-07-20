@@ -1,10 +1,57 @@
 # Database Management
 
+## SGA
+<ul>
+	<li>Shared Pool</li>
+	<li>Database Buffer Cache</li>
+	<li>Redo Log Buffer</li>
+	<li>Large Pool</li>
+	<li>Java Pool</li>
+	<li>Streams Pool</li>
+	<li>Result Cache</li>
+</ul>
+
+## Background process
+<p>5가지 필수 background process(해당 프로세스들은 장애 시 서버 다운)</p>
+<ul>
+	<li>smon(system monitor process)</li>
+	<ul>
+		<li>smon의 역할: 인스턴스 자동 복구(Instance Auto Recovery)</li>
+		<li>DB 비정상 종료하여 checkpoint 실행되지 못하면 Redo Log File 기록과 Control File + Datafile의 헤더 블록의 기록이 맞지 않음</li>
+		<li>Dirty Buffer는 휘발되고 Data File도 Dirty한 상태로 남음</li>
+		<li>DB 재시작 시 smon이 Redo Log File을 이용하여 recovery(복구) 실행(체크포인트 기록과 Redo Log File 시간차만큼 복구 실행)</li>
+	</ul>
+	<li>pmon(process monitor process)</li>
+	<ul>
+		<li>pmon의 역할: 프로세스 정리 작업 담당</li>
+		<li>정상적으로 User Process 종료 => Server Process에게도 신호가 가서 정상적으로 종료</li>
+		<li>비정상적으로 User Process 종료 => Server Process에는 신호가 가지 않아 여전히 살아있음</li>
+		<li>데이터 변경하여 락이 걸린 후(UPDATE를 위해 데이터 블록에 대해 락 발생) 비정상적으로 User Process 종료될 경우 Server Process가 락을 풀기 위해서 명령을 내리는 User Process를 잃음(Zombie Process)</li>
+		<li>User Process를 잃은 Server Process를 정리하고 실행 중이던 트랜잭션은 ROLLBACK 시킴</li>
+	</ul>
+	<li>dbwr(database writer)</li>
+	<ul>
+		<li>Dirty Buffer를 데이터베이스에 내려보내 쓰는 프로세스</li>
+	</ul>
+	<li>ckpt(checkpoint process)</li>
+	<ul>
+		<li>데이터베이스에서 발생하는 체크포인트 이벤트 주관하는 프로세스</li>
+		<li>체크포인트(checkpoint): 모든 트랜잭션을 종료하고 커밋 여부 등을 확인하여 반영하는 작업</li>
+		<li>정상적으로 종료할 경우 Control File에 최종적으로 발생한 체크포인트 시간 남김, 데이터 파일에 제일 앞 블록(헤더 블록)에도 체크포인트 시간 남김</li>
+	</ul>
+	<li>lgwr(log writer process)</li>
+	<ul>
+		<li>Redo Log File 쓰기 담당 프로세스</li>
+	</ul>
+</ul>
+
 ## Command Lines
 <p>Database Start/Stop</p>
 <pre>
 - DB start nomount|mount
   SYS > STARTUP OPTION
+- DB manually start
+	SYS > ALTER DATABASE [MOUNT | OPEN];
 - DB shutdown normal|transactional|immediate|abort
   SYS > SHUTDOWN OPTION
 - Listener management
@@ -34,6 +81,14 @@
 - 삭제
   DROP TABLESPACE tablespace_name INCLUDING CONTENTS AND DATAFILES;
 </pre>
+<p>Shutdown 옵션</p>
+<ul>
+	<li>Normal - 새로운 세션은 거부, 현재 접속 중인 세션에 대해서는 종료될 때까지 기다리는 옵션</li>
+	<li>Transactional - 접속 또는 SELECT만 하는 USER는 종료, DML 실행한 사용자는 COMMIT, ROLLBACK한 후에 종료</li>
+	<li>Immediate - 바로 종료, 서버가 강제로 ROLLBACK 실행</li>
+	<li>Abort - 비정상 종료, Dirty Buffer, Dirty Data File 정리안된 상태로 인스턴스 자체를 닫음, 다음 DB Open시 smon이 instance recovery 실행 필요</li>
+</ul>
+
 
 ## Undo Data Management
 ### Undo data
@@ -42,7 +97,9 @@
 	<li>Used to support: rollback operations, read-consistent queries, flashback query/transaction/table, recovery from failed transactions</li>
 	<li>주로 변경사항을 롤백하거나 실행 취소하는데 사용되는 정보 생성 및 관리</li>
 </ul>
+
 ### Automatic Undo Management
+
 <p>Oracle 11G부터는 Automatic Undo Management(AUM)이 기본적으로 설정</p>
 <p>Automatic Undo Management 조건</p>
 <ul>
@@ -792,7 +849,7 @@ DROP INDEX index_name;
 	<li>해결 방안: 로그 파일의 개수를 늘려줌(로그 파일은 데이터파일과 달리 리사이즈 불가)</li>
 	<li>마지막 log 내용 포함한 Redo Log File 장애 시 예방 방안: Redundancy, 각각의 redo log file의 복사본 생성(다중화, multiplexing)</li>
 	<ul>
-		<li>동시간대 파일 내용을 가지는 그룹 => LOG GROUP</li>
+		<li>동시간대 동일한 파일 내용을 가지는 그룹(로그 스위치가 일어나는 단위) => LOG GROUP</li>
 		<ul>
 			<li>관련 딕셔너리: V$LOG</li>
 			<li><pre>SELECT group#, members, sequence#, status, 
@@ -834,5 +891,27 @@ DROP INDEX index_name;
 	</ol>
 </ul>
 
+### Recovery
+<p>복구</p>
+<ol>
+	<li>복원</li>
+	<li>복구 => <b>"Redo"</b></li>
+	<ul>
+		<li>Redo Log File은 순환하며 덮어쓰기를 하기 때문에 복구를 위해서는 archive가 필요</li>
+		<li>no archive mode는 복구 불가(가장 최신 로그 기록밖에 없음)</li>
+	</ul>
+</ol>
 
-
+#### Archive Log Mode
+<ul>
+	<li>No arcihve log mode => Archive log mode 변경 시에는 mount 상태로 변경 필요</li>
+	<li>no archive => archive: <code>ALTER DATABASE ARCHIVELOG;</code><li>
+	<li>Archive Log 모드를 사용하기 위해서는 archive log file을 저장하기 위한 archive_dest directory가 필요</li>
+	<li>arch(archive process) => redo log file이 다 차면 덮어쓰기 전에 archive_dest에 사본 저장하는 백그라운드 프로세스</li>
+	<li>archive log list 지표</li>
+	<ul>
+		<li>Oldest online log sequence</li>
+		<li>Next log sequence to archive</li>
+		<li>Current log sequence</li>
+	</ul>
+</ul>
