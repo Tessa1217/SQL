@@ -961,3 +961,9 @@ DROP INDEX index_name;
 			DELETE OBSOLETE;
 		</pre></li>
 	</ul>
+<p>Recovery Retention Policy</p>
+<ul>
+	<li>Manual</li>
+	<li>Recovery window(기간 설정) = 지난 기간을 복구할 수 있는 백업 파일들을 그대로 유지</li>
+	<li>Redundancy(횟수) = number of full backups for each datafile</li>
+</ul>
