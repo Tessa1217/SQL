@@ -898,7 +898,7 @@ DROP INDEX index_name;
 	<li>복구 => <b>"Redo"</b></li>
 	<ul>
 		<li>Redo Log File은 순환하며 덮어쓰기를 하기 때문에 복구를 위해서는 archive가 필요</li>
-		<li>no archive mode는 복구 불가(가장 최신 로그 기록밖에 없음)</li>
+		<li>no archive mode는 복구 불가(가장 최신 로그 기록밖에 없음) => 주로 대용량 데이터들을 보관하고 있는 datawarehouse에서 no archive mode 사용</li>
 	</ul>
 </ol>
 
@@ -914,4 +914,50 @@ DROP INDEX index_name;
 		<li>Next log sequence to archive</li>
 		<li>Current log sequence</li>
 	</ul>
+	<li>Flash recovery area</li>
+	<ul>
+		<li>Parameter: db_recovert_file_dest(path), db_recovery_file_dest_size(size)</li>
+		<li>DB 복구를 위한 통합 경로(자동 관리)</li>
+		<li>복구에 필요한 것: DB Backup, Archive Log, Control File, Redo Log Member</li>
+	</ul>
 </ul>
+
+### Backup
+<p>Backup Terminology</p>
+<ul>
+	<li>Whole Backup: 모든 데이터 파일과 컨트롤 파일을 백업(data file + control file + spfile)</li>
+	<ul>
+		<li>datafile => DB block 단위</li>
+		<li>control, spfile => OS block 단위</li>
+		<li>=> backupset 2개 생성</li>
+	</ul>
+	<li>Partial Backup: 특정 데이터 파일, 테이블스페이스, 컨트롤 파일을 백업</li>
+	<li>Full Backup: (파일 하나를 기준으로) 하나의 파일의 모든 블록을 백업</li>
+	<li>Incremental Backup: (Full backup 기준) Full backup 이후 변경된 블록만 백업</li>
+	<li>Cold Backup: Closed DB Backup</li>
+	<li>Hot Backup: Opened DB Backup</li>
+</ul>
+<p>Backup Type(rman)</p>
+<ul>
+	<li>Backupset: 여러 데이터파일의 사용중인 블록만(OS에서 보여주는 파일 크기 전체가 아니라 사용중인 블록만 해당) 모아서 한 백업 파일에 모은 후(여러 데이터 파일에서 사용중인 블록을 모으는 작업 단위를 backupset, 이렇게 해서 만들어진 백업 파일 하나하나를 backup piece라고 함) 백업한 모음</li>
+	<li>Copy: 운영체제의 복사방식과 동일하게(파일 개수, 사이즈 그대로 복사) 각 데이터파일의 개별적인 복사본</li>
+</ul>
+<p>Backup 방식(운영 모드)</p>
+<ul>
+	<li>Noarchive Log Mode: closed whole backup(DB 내리고 전체 백업하는 방식만 가능) => Cold backup</li>
+	<li>Archive Log Mode: 모든 백업 방식이 가능</li>
+</ul>
+<p>Tool</p>
+	<ul>
+		<li>rman(recovery manager)</li>
+		<li><pre>
+		* rman 실행
+			rman
+		* rman 로그인
+			CONNECT TARGET /
+		* DB 백업
+			BACKUP DATABASE; (Whole backup)
+		* 필요없는 로그 파일들 지움
+			DELETE OBSOLETE;
+		</pre></li>
+	</ul>
