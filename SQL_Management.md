@@ -967,3 +967,29 @@ DROP INDEX index_name;
 	<li>Recovery window(기간 설정) = 지난 기간을 복구할 수 있는 백업 파일들을 그대로 유지</li>
 	<li>Redundancy(횟수) = number of full backups for each datafile</li>
 </ul>
+
+### Recovery
+<pre>
+RMAN
+- Restore(복원) ex) Tablespace 복원
+	RESTORE TABLESPACE tablespace_name;
+	RESTORE RECOVERY_SCOPE recovery_scope_name;
+- Recovery(복구)
+	RECOVER TABLESPACE tablespace_name;
+	RECOVER RECOVERY_SCOPE recovery_scope_name;
+</pre>
+
+## Import & Export
+
+### SQL Loader
+<p>SQL Loader: INSERT INTO ...를 non-oracle data를 사용하여 생성해줌</p>
+<p>SQL Loader 예시: <code>sqlldr id/pwd control=controlfile.ctl data=datafile.dat</code></p>
+
+### Import & Export
+<p>Source DB에서 정보를 뽑아 dump 파일을 만든 후 해당 파일을 이용하여 Import를 이용하여 Target DB에 복사</p>
+<p><pre>
+* Export
+	exp id/pwd file=path tables=table1, table2...
+* Import
+	imp id/pwd file=path tables=table1, table2...
+</pre></p>
